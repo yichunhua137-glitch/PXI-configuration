@@ -510,6 +510,11 @@
   cursor: pointer;
 }
 
+.badge-button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
 .subtle-badge {
   background: rgba(31, 42, 24, 0.06);
   color: #4e5f41;

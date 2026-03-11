@@ -74,6 +74,37 @@ function buildImageCandidates(filename) {
   return [`/test/${encodeURIComponent(file)}`, `/地图原素材/${encodeURIComponent(file)}`]
 }
 
+function loadImageFromCandidates(candidates) {
+  return new Promise((resolve, reject) => {
+    if (!candidates?.length) {
+      reject(new Error('Missing asset'))
+      return
+    }
+
+    let index = 0
+
+    function tryLoad() {
+      if (index >= candidates.length) {
+        reject(new Error('Failed to load image'))
+        return
+      }
+
+      const image = new Image()
+      image.crossOrigin = 'anonymous'
+      image.onload = () => {
+        resolve(image)
+      }
+      image.onerror = () => {
+        index += 1
+        tryLoad()
+      }
+      image.src = candidates[index]
+    }
+
+    tryLoad()
+  })
+}
+
 function dominantY(points) {
   const buckets = new Map()
 
@@ -124,6 +155,7 @@ function App() {
   const [hoverSlotId, setHoverSlotId] = useState(null)
   const [contextSlotId, setContextSlotId] = useState(null)
   const [showSlotAnchors, setShowSlotAnchors] = useState(true)
+  const [isExportingImage, setIsExportingImage] = useState(false)
   const moduleThumbRefs = useRef({})
   const contextTimerRef = useRef(null)
 
@@ -438,6 +470,62 @@ function App() {
     setContextSlotId(null)
   }
 
+  async function handleExportImage() {
+    if (!chassisModel) {
+      return
+    }
+
+    setIsExportingImage(true)
+
+    try {
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.round(chassisModel.width)
+      canvas.height = Math.round(chassisModel.height)
+      const context = canvas.getContext('2d')
+
+      if (!context) {
+        throw new Error('Canvas unavailable')
+      }
+
+      const chassisImage = await loadImageFromCandidates(buildImageCandidates(chassisModel.imageLayer.image))
+      context.drawImage(
+        chassisImage,
+        chassisModel.imageLayer.offsetx ?? 0,
+        chassisModel.imageLayer.offsety ?? 0,
+        chassisModel.imageLayer.imagewidth,
+        chassisModel.imageLayer.imageheight,
+      )
+
+      for (const moduleView of placedModuleViews) {
+        const slot = chassisModel.slots.find((candidate) => candidate.id === moduleView.slotId)
+        const module = moduleLibrary.find((candidate) => candidate.key === moduleView.moduleKey)
+
+        if (!slot || !module) {
+          continue
+        }
+
+        const moduleImage = await loadImageFromCandidates(module.imageCandidates)
+        context.drawImage(
+          moduleImage,
+          slot.x - module.anchor.x,
+          slot.y - module.anchor.y,
+          module.imageWidth,
+          module.imageHeight,
+        )
+      }
+
+      const link = document.createElement('a')
+      link.download = `${selectedChassis.label}-${new Date().toISOString().slice(0, 10)}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Export failed'
+      window.alert(`Export failed: ${message}`)
+    } finally {
+      setIsExportingImage(false)
+    }
+  }
+
   if (currentScreen === 'home') {
     return (
       <main className="page-shell home-shell">
@@ -690,6 +778,14 @@ function App() {
               <span className="panel-badge subtle-badge">
                 {draggedModuleKey ? `dragging ${draggedModuleKey}` : 'drop enabled'}
               </span>
+              <button
+                type="button"
+                className="panel-badge badge-button"
+                onClick={handleExportImage}
+                disabled={!chassisModel || isExportingImage}
+              >
+                {isExportingImage ? 'Exporting...' : 'Export PNG'}
+              </button>
               <button
                 type="button"
                 className="panel-badge badge-button"
