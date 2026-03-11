@@ -1,0 +1,25 @@
+我把比例重新调到中间档了，现在不是之前那么小，也不会像最早那样铺得太夸张。
+
+这次主要改的是：
+- 右侧预览列明显加宽
+- 预览画布最大宽度提高到 `720px`
+- 预览区域最小高度提高到 `360px`
+- 左边说明区略收一点，把视觉重点让给预览
+
+改动在：
+- [src/App.css](/c:/Users/yichu/OneDrive%20-%20University%20of%20Waterloo/%E6%A1%8C%E9%9D%A2/PXIConfiguration/src/App.css)
+- [src/App.jsx](/c:/Users/yichu/OneDrive%20-%20University%20of%20Waterloo/%E6%A1%8C%E9%9D%A2/PXIConfiguration/src/App.jsx)
+
+验证过：
+- `npm run build`
+- `npm run lint`
+
+都通过了。
+
+你现在看这版，如果还要再调，我建议你直接告诉我方向：
+- “再大一点”
+- “再小一点”
+- “预览居中但信息卡往下放”
+- “做成左窄右宽的专业编辑器布局”
+
+这样我下一次可以直接打到你想要的比例。
