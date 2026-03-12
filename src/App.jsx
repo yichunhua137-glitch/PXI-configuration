@@ -138,6 +138,32 @@ function AssetImage({ candidates, alt, className, style, imageRef }) {
   )
 }
 
+function GlobalHeading({ currentScreen }) {
+  return (
+    <header className="global-heading">
+      <div className="global-brand">
+        <span className="global-brand-mark">PXI</span>
+        <span className="global-brand-name">Lab UI</span>
+      </div>
+
+      <nav className="global-nav" aria-label="Primary">
+        <button type="button" className="global-nav-item">
+          Dashboard
+        </button>
+        <button
+          type="button"
+          className={`global-nav-item ${currentScreen === 'home' || currentScreen === 'builder' ? 'global-nav-item-active' : ''}`}
+        >
+          PXI Configuration
+        </button>
+        <button type="button" className="global-nav-item">
+          Other
+        </button>
+      </nav>
+    </header>
+  )
+}
+
 function App() {
   const [currentScreen, setCurrentScreen] = useState('home')
   const [selectedChassisKey, setSelectedChassisKey] = useState('pxie-1095')
@@ -156,6 +182,11 @@ function App() {
   const [contextSlotId, setContextSlotId] = useState(null)
   const [showSlotAnchors, setShowSlotAnchors] = useState(true)
   const [isExportingImage, setIsExportingImage] = useState(false)
+  const [openLibrarySections, setOpenLibrarySections] = useState({
+    controller: true,
+    module: true,
+    other: false,
+  })
   const moduleThumbRefs = useRef({})
   const contextTimerRef = useRef(null)
 
@@ -315,6 +346,41 @@ function App() {
     )
   }, [moduleLibrary, normalizedSearch])
 
+  const librarySections = useMemo(() => {
+    const controllers = moduleLibrary.filter((module) => module.tone === 'controller')
+    const modules = moduleLibrary.filter((module) => module.tone === 'module')
+
+    return [
+      {
+        key: 'controller',
+        label: 'Controller',
+        items: [
+          ...controllers.map((item) => ({ ...item, placeholder: false })),
+          { key: 'controller-placeholder-1', label: 'PXIe-8881', placeholder: true },
+          { key: 'controller-placeholder-2', label: 'PXIe-8840', placeholder: true },
+        ],
+      },
+      {
+        key: 'module',
+        label: 'Modules',
+        items: [
+          ...modules.map((item) => ({ ...item, placeholder: false })),
+          { key: 'module-placeholder-1', label: 'PXIe-6363', placeholder: true },
+          { key: 'module-placeholder-2', label: 'PXIe-6738', placeholder: true },
+          { key: 'module-placeholder-3', label: 'PXIe-4499', placeholder: true },
+        ],
+      },
+      {
+        key: 'other',
+        label: 'Other',
+        items: [
+          { key: 'other-placeholder-1', label: 'Reserved Item A', placeholder: true },
+          { key: 'other-placeholder-2', label: 'Reserved Item B', placeholder: true },
+        ],
+      },
+    ]
+  }, [moduleLibrary])
+
   const previewLayout = useMemo(() => {
     if (!chassisModel) {
       return null
@@ -423,6 +489,28 @@ function App() {
     setContextSlotId((current) => (current === slotId ? null : current))
   }
 
+  function findNextEmptySlot() {
+    if (!chassisModel) {
+      return null
+    }
+
+    return chassisModel.slots.find((slot) => !placedModules[slot.id]) ?? null
+  }
+
+  function handleAddFromSection(section) {
+    const availableItems = section.items.filter((item) => !item.placeholder)
+    const targetItem =
+      availableItems.find((item) => item.key === selectedModuleKey) ?? availableItems[0] ?? null
+    const nextEmptySlot = findNextEmptySlot()
+
+    if (!targetItem || !nextEmptySlot) {
+      return
+    }
+
+    setSelectedModuleKey(targetItem.key)
+    placeModuleAtSlot(nextEmptySlot.id, targetItem.key)
+  }
+
   function findNearestSlot(clientX, clientY, container) {
     if (!chassisModel) {
       return null
@@ -529,6 +617,7 @@ function App() {
   if (currentScreen === 'home') {
     return (
       <main className="page-shell home-shell">
+        <GlobalHeading currentScreen={currentScreen} />
         <section className="home-hero">
           <div className="home-copy">
             <p className="eyebrow">PXI Configuration Home</p>
@@ -545,11 +634,11 @@ function App() {
               <span>已接入机箱</span>
             </article>
             <article className="summary-card">
-              <strong>{moduleLibrary.filter((item) => item.tone === 'controller').length}</strong>
+              <strong>Step 1</strong>
               <span>控制器模板</span>
             </article>
             <article className="summary-card">
-              <strong>{moduleLibrary.filter((item) => item.tone === 'module').length}</strong>
+              <strong>Next</strong>
               <span>板卡模板</span>
             </article>
           </div>
@@ -668,6 +757,7 @@ function App() {
 
   return (
     <main className="page-shell builder-shell">
+      <GlobalHeading currentScreen={currentScreen} />
       <div className="page-topbar">
         <button
           type="button"
@@ -718,52 +808,109 @@ function App() {
           </div>
 
           <div className="module-list">
-            {moduleLibrary.map((module) => {
-              const isSelected = selectedModuleKey === module.key
-
-              return (
-                <button
-                  key={module.key}
-                  type="button"
-                  className={`module-tile ${isSelected ? 'module-tile-selected' : ''}`}
-                  draggable
-                  onClick={() => {
-                    setSelectedModuleKey(module.key)
-                  }}
-                  onDragStart={(event) => {
-                    event.dataTransfer.setData('text/module-key', module.key)
-                    const dragImage = moduleThumbRefs.current[module.key]
-                    if (dragImage) {
-                      event.dataTransfer.setDragImage(
-                        dragImage,
-                        dragImage.width / 2,
-                        Math.min(dragImage.height / 3, 40),
-                      )
-                    }
-                    setDraggedModuleKey(module.key)
-                    setSelectedModuleKey(module.key)
-                  }}
-                  onDragEnd={() => {
-                    setDraggedModuleKey('')
-                    setHoverSlotId(null)
-                  }}
+            {librarySections.map((section) => (
+              <section key={section.key} className="library-section">
+                <div
+                  className={`library-section-header ${
+                    openLibrarySections[section.key] ? 'library-section-toggle-open' : ''
+                  }`}
                 >
-                  <div className={`module-chip module-chip-${module.tone}`}>{module.label}</div>
-                  <div className="module-thumb">
-                    <AssetImage
-                      candidates={module.imageCandidates}
-                      alt={module.label}
-                      className="module-thumb-image"
-                      imageRef={(node) => {
-                        if (node) {
-                          moduleThumbRefs.current[module.key] = node
-                        }
-                      }}
-                    />
+                  <button
+                    type="button"
+                    className="library-section-toggle"
+                    onClick={() => {
+                      setOpenLibrarySections((current) => ({
+                        ...current,
+                        [section.key]: !current[section.key],
+                      }))
+                    }}
+                  >
+                    <span>{section.label}</span>
+                    <span className="library-section-arrow">
+                      {openLibrarySections[section.key] ? '-' : '+'}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="library-section-add"
+                    onClick={() => {
+                      handleAddFromSection(section)
+                    }}
+                    disabled={
+                      !section.items.some((item) => !item.placeholder) || !findNextEmptySlot()
+                    }
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {openLibrarySections[section.key] ? (
+                  <div className="library-section-items">
+                    {section.items.map((item) => {
+                      const isSelected = !item.placeholder && selectedModuleKey === item.key
+
+                      return (
+                        <button
+                          key={item.key}
+                          type="button"
+                          className={`library-item ${isSelected ? 'library-item-selected' : ''} ${
+                            item.placeholder ? 'library-item-placeholder' : ''
+                          }`}
+                          draggable={!item.placeholder}
+                          onClick={() => {
+                            if (!item.placeholder) {
+                              setSelectedModuleKey(item.key)
+                            }
+                          }}
+                          onDragStart={(event) => {
+                            if (item.placeholder) {
+                              event.preventDefault()
+                              return
+                            }
+
+                            event.dataTransfer.setData('text/module-key', item.key)
+                            const dragImage = moduleThumbRefs.current[item.key]
+                            if (dragImage) {
+                              event.dataTransfer.setDragImage(
+                                dragImage,
+                                dragImage.width / 2,
+                                Math.min(dragImage.height / 3, 40),
+                              )
+                            }
+                            setDraggedModuleKey(item.key)
+                            setSelectedModuleKey(item.key)
+                          }}
+                          onDragEnd={() => {
+                            if (!item.placeholder) {
+                              setDraggedModuleKey('')
+                              setHoverSlotId(null)
+                            }
+                          }}
+                        >
+                          <span>{item.label}</span>
+                          <span className="library-item-meta">
+                            {item.placeholder ? 'placeholder' : isSelected ? 'selected' : 'available'}
+                          </span>
+
+                          {!item.placeholder ? (
+                            <AssetImage
+                              candidates={item.imageCandidates}
+                              alt={item.label}
+                              className="module-thumb-image-hidden"
+                              imageRef={(node) => {
+                                if (node) {
+                                  moduleThumbRefs.current[item.key] = node
+                                }
+                              }}
+                            />
+                          ) : null}
+                        </button>
+                      )
+                    })}
                   </div>
-                </button>
-              )
-            })}
+                ) : null}
+              </section>
+            ))}
           </div>
         </aside>
 
@@ -793,7 +940,7 @@ function App() {
                   setShowSlotAnchors((current) => !current)
                 }}
               >
-                {showSlotAnchors ? '隐藏绿点' : '显示绿点'}
+                {showSlotAnchors ? '隐藏锚点' : '显示锚点'}
               </button>
             </div>
           </div>
