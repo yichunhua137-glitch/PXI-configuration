@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, supabaseConfigError } from './lib/supabase'
 import './App.css'
 
@@ -82,6 +82,40 @@ const UPDATE_LOG_ITEMS = [
     description: 'Improved module drag and drop, section add actions, and the accordion-style module library.',
   },
 ]
+
+class AppErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <main className="page-shell auth-shell">
+          <section className="auth-panel auth-panel-loading">
+            <div className="auth-card">
+              <p className="eyebrow">Runtime Error</p>
+              <h2>The deployed app hit a client-side error.</h2>
+              <p className="hero-text">
+                This is now shown on screen so the problem is visible instead of ending in a blank page.
+              </p>
+              <div className="auth-message auth-message-error">
+                {this.state.error?.message || 'Unknown runtime error'}
+              </div>
+            </div>
+          </section>
+        </main>
+      )
+    }
+
+    return this.props.children
+  }
+}
 
 function getPasswordRules(password) {
   return [
@@ -2214,4 +2248,10 @@ function App() {
   )
 }
 
-export default App
+export default function AppRoot() {
+  return (
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
+  )
+}
