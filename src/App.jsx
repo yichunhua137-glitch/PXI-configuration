@@ -873,6 +873,11 @@ function App() {
   const nextPasswordRules = useMemo(() => getPasswordRules(nextPassword), [nextPassword])
 
   useEffect(() => {
+    if (!supabase) {
+      setAuthReady(true)
+      return
+    }
+
     let mounted = true
 
     async function loadSession() {
@@ -909,6 +914,13 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (!supabase) {
+      setSavedConfigurations([])
+      setSavedConfigCount(0)
+      setIsLoadingSavedConfigurations(false)
+      return
+    }
+
     let cancelled = false
 
     async function loadMaps() {
@@ -1233,7 +1245,7 @@ function App() {
     CHASSIS_OPTIONS.find((option) => option.key === selectedChassisKey) ?? CHASSIS_OPTIONS[0]
 
   async function refreshSavedConfigurations() {
-    if (!user) {
+    if (!supabase || !user) {
       setSavedConfigurations([])
       setSavedConfigCount(0)
       return
@@ -1261,6 +1273,10 @@ function App() {
 
   async function handleAuthSubmit(event) {
     event.preventDefault()
+    if (!supabase) {
+      setAuthError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
     setAuthLoading(true)
     setAuthError('')
     setAuthNotice('')
@@ -1308,6 +1324,11 @@ function App() {
   }
 
   async function handleSignOut() {
+    if (!supabase) {
+      setAuthError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
+
     const { error } = await supabase.auth.signOut()
     if (error) {
       setAuthError(error.message)
@@ -1335,6 +1356,10 @@ function App() {
 
   async function handlePasswordSubmit(event) {
     event.preventDefault()
+    if (!supabase) {
+      setPasswordError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
     setPasswordLoading(true)
     setPasswordError('')
     setPasswordMessage('')
@@ -1369,6 +1394,12 @@ function App() {
   }
 
   async function handleSaveConfiguration() {
+    if (!supabase) {
+      setSaveError(supabaseConfigError || 'Supabase is not configured.')
+      setSaveMessage('')
+      return
+    }
+
     if (!user) {
       return
     }
@@ -1444,6 +1475,11 @@ function App() {
   }
 
   async function handleDeleteConfiguration(configurationId) {
+    if (!supabase) {
+      setSavedConfigsError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
+
     setDeletingConfigId(configurationId)
     setSavedConfigsError('')
 
