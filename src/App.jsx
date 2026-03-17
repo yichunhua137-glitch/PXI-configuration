@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { supabase } from './lib/supabase'
+import { supabase, supabaseConfigError } from './lib/supabase'
 import './App.css'
 
 const MODULE_SOURCES = [
@@ -319,10 +319,17 @@ function UserScreen({
   savedConfigCount,
   isLoadingConfigCount,
   nextPassword,
+  nextConfirmPassword,
+  nextPasswordRules,
+  showNextPassword,
+  showNextConfirmPassword,
   passwordMessage,
   passwordError,
   passwordLoading,
   onNextPasswordChange,
+  onNextConfirmPasswordChange,
+  onToggleNextPasswordVisibility,
+  onToggleNextConfirmPasswordVisibility,
   onPasswordSubmit,
   onOpenSaves,
 }) {
@@ -393,16 +400,76 @@ function UserScreen({
           <form className="user-settings-form" onSubmit={onPasswordSubmit}>
             <label className="auth-field">
               <span>New Password</span>
-              <input
-                type="password"
-                value={nextPassword}
-                onChange={(event) => {
-                  onNextPasswordChange(event.target.value)
-                }}
-                minLength={6}
-                placeholder="Enter a new password"
-                required
-              />
+              <div className="auth-password-row">
+                <input
+                  className="auth-password-input"
+                  type={showNextPassword ? 'text' : 'password'}
+                  value={nextPassword}
+                  onChange={(event) => {
+                    onNextPasswordChange(event.target.value)
+                  }}
+                  minLength={8}
+                  placeholder="Enter a new password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={onToggleNextPasswordVisibility}
+                  aria-label={showNextPassword ? 'Hide new password' : 'Show new password'}
+                  title={showNextPassword ? 'Hide new password' : 'Show new password'}
+                >
+                  <img
+                    src={showNextPassword ? '/see/no%20see.png' : '/see/see.png'}
+                    alt=""
+                    className="auth-password-toggle-icon"
+                    draggable={false}
+                  />
+                </button>
+              </div>
+            </label>
+
+            <div className="auth-password-rules">
+              {nextPasswordRules.map((rule) => (
+                <div
+                  key={rule.key}
+                  className={`auth-password-rule ${rule.passed ? 'auth-password-rule-passed' : ''}`}
+                >
+                  <span>{rule.passed ? '✓' : '•'}</span>
+                  <span>{rule.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <label className="auth-field">
+              <span>Confirm Password</span>
+              <div className="auth-password-row">
+                <input
+                  className="auth-password-input"
+                  type={showNextConfirmPassword ? 'text' : 'password'}
+                  value={nextConfirmPassword}
+                  onChange={(event) => {
+                    onNextConfirmPasswordChange(event.target.value)
+                  }}
+                  minLength={8}
+                  placeholder="Enter the new password again"
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={onToggleNextConfirmPasswordVisibility}
+                  aria-label={showNextConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  title={showNextConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  <img
+                    src={showNextConfirmPassword ? '/see/no%20see.png' : '/see/see.png'}
+                    alt=""
+                    className="auth-password-toggle-icon"
+                    draggable={false}
+                  />
+                </button>
+              </div>
             </label>
 
             {passwordError ? <div className="auth-message auth-message-error">{passwordError}</div> : null}
@@ -723,6 +790,8 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showNextPassword, setShowNextPassword] = useState(false)
+  const [showNextConfirmPassword, setShowNextConfirmPassword] = useState(false)
   const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState('')
   const [authNotice, setAuthNotice] = useState('')
@@ -737,6 +806,7 @@ function App() {
   const [saveMessage, setSaveMessage] = useState('')
   const [deletingConfigId, setDeletingConfigId] = useState(null)
   const [nextPassword, setNextPassword] = useState('')
+  const [nextConfirmPassword, setNextConfirmPassword] = useState('')
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const [passwordMessage, setPasswordMessage] = useState('')
@@ -766,6 +836,7 @@ function App() {
   const moduleThumbRefs = useRef({})
   const contextTimerRef = useRef(null)
   const passwordRules = useMemo(() => getPasswordRules(password), [password])
+  const nextPasswordRules = useMemo(() => getPasswordRules(nextPassword), [nextPassword])
 
   useEffect(() => {
     let mounted = true
@@ -1223,6 +1294,7 @@ function App() {
     setSaveError('')
     setSaveMessage('')
     setNextPassword('')
+    setNextConfirmPassword('')
     setPasswordError('')
     setPasswordMessage('')
   }
@@ -1234,6 +1306,14 @@ function App() {
     setPasswordMessage('')
 
     try {
+      if (nextPasswordRules.some((rule) => !rule.passed)) {
+        throw new Error('Password does not meet all required rules.')
+      }
+
+      if (nextPassword !== nextConfirmPassword) {
+        throw new Error('Passwords do not match.')
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: nextPassword,
       })
@@ -1244,6 +1324,9 @@ function App() {
 
       setPasswordMessage('Password updated successfully.')
       setNextPassword('')
+      setNextConfirmPassword('')
+      setShowNextPassword(false)
+      setShowNextConfirmPassword(false)
     } catch (error) {
       setPasswordError(error instanceof Error ? error.message : 'Failed to update password')
     } finally {
@@ -1506,6 +1589,23 @@ function App() {
     })
   }
 
+  if (supabaseConfigError) {
+    return (
+      <main className="page-shell auth-shell">
+        <section className="auth-panel auth-panel-loading">
+          <div className="auth-card">
+            <p className="eyebrow">Deployment Error</p>
+            <h2>Supabase environment variables are missing.</h2>
+            <p className="hero-text">
+              Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in your deployment platform, then redeploy.
+            </p>
+            <div className="auth-message auth-message-error">{supabaseConfigError}</div>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
   if (!authReady) {
     return (
       <main className="page-shell auth-shell">
@@ -1569,10 +1669,21 @@ function App() {
           savedConfigCount={savedConfigCount}
           isLoadingConfigCount={isLoadingSavedConfigurations}
           nextPassword={nextPassword}
+          nextConfirmPassword={nextConfirmPassword}
+          nextPasswordRules={nextPasswordRules}
+          showNextPassword={showNextPassword}
+          showNextConfirmPassword={showNextConfirmPassword}
           passwordMessage={passwordMessage}
           passwordError={passwordError}
           passwordLoading={passwordLoading}
           onNextPasswordChange={setNextPassword}
+          onNextConfirmPasswordChange={setNextConfirmPassword}
+          onToggleNextPasswordVisibility={() => {
+            setShowNextPassword((current) => !current)
+          }}
+          onToggleNextConfirmPasswordVisibility={() => {
+            setShowNextConfirmPassword((current) => !current)
+          }}
           onPasswordSubmit={handlePasswordSubmit}
           onOpenSaves={() => {
             setCurrentScreen('saves')
