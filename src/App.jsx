@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { supabase } from './lib/supabase'
 import './App.css'
 
 const MODULE_SOURCES = [
@@ -13,7 +14,7 @@ const CHASSIS_SOURCES = [
     key: 'pxie-1095',
     label: 'PXIe-1095',
     status: 'available',
-    note: '当前已接入 tmj 和拖拽配置页',
+    note: 'Configured with tmj and drag-and-drop builder',
     image: 'PXIe-1095 1.png',
     tmjPath: '/test/1095.tmj',
   },
@@ -21,7 +22,7 @@ const CHASSIS_SOURCES = [
     key: 'pxie-1092',
     label: 'PXIe-1092',
     status: 'available',
-    note: '已新增素材和槽位点，可直接进入配置',
+    note: 'Ready with slot anchors and preview image',
     image: 'PXIe-1092 1.png',
     tmjPath: '/test/1092.tmj',
   },
@@ -32,29 +33,64 @@ const CHASSIS_OPTIONS = [
     key: 'pxie-1095',
     label: 'PXIe-1095',
     status: 'available',
-    note: '当前已接入 tmj 和拖拽配置页',
+    note: 'Configured with tmj and drag-and-drop builder',
     image: 'PXIe-1095 1.png',
   },
   {
     key: 'pxie-1092',
     label: 'PXIe-1092',
     status: 'available',
-    note: '已新增素材和槽位点，可直接进入配置',
+    note: 'Ready with slot anchors and preview image',
     image: 'PXIe-1092 1.png',
   },
   {
     key: 'placeholder-a',
     label: 'More Chassis',
     status: 'placeholder',
-    note: '后续上传机箱素材后接入',
+    note: 'Reserved for future chassis uploads',
   },
   {
     key: 'placeholder-b',
     label: 'Reserved',
     status: 'placeholder',
-    note: '预留更多机箱模板入口',
+    note: 'Placeholder for additional PXI templates',
   },
 ]
+
+const AUTH_QUOTES = [
+  { text: 'To measure is to know.', author: 'Lord Kelvin' },
+  { text: 'What gets measured gets managed.', author: 'Peter Drucker' },
+  { text: 'Without data, you are just another person with an opinion.', author: 'W. Edwards Deming' },
+  { text: 'Engineering is the art of directing the great sources of power in nature.', author: 'Thomas Tredgold' },
+  { text: 'Every experiment is a question which science poses to nature.', author: 'Max Planck' },
+]
+
+const UPDATE_LOG_ITEMS = [
+  {
+    date: '2026-03-17',
+    title: 'Supabase sign-in and saves',
+    description: 'Added user authentication, saved configuration pages, and save/load flow for chassis layouts.',
+  },
+  {
+    date: '2026-03-16',
+    title: 'Dashboard and NI visual refresh',
+    description: 'Introduced the dashboard view and updated the UI to a more square NI-style visual system.',
+  },
+  {
+    date: '2026-03-15',
+    title: 'Builder interaction update',
+    description: 'Improved module drag and drop, section add actions, and the accordion-style module library.',
+  },
+]
+
+function getPasswordRules(password) {
+  return [
+    { key: 'length', label: 'At least 8 characters', passed: password.length >= 8 },
+    { key: 'upper', label: 'At least 1 uppercase letter', passed: /[A-Z]/.test(password) },
+    { key: 'lower', label: 'At least 1 lowercase letter', passed: /[a-z]/.test(password) },
+    { key: 'number', label: 'At least 1 number', passed: /\d/.test(password) },
+  ]
+}
 
 function findImageLayer(map) {
   return map.layers?.find((layer) => layer.type === 'imagelayer') ?? null
@@ -91,9 +127,7 @@ function loadImageFromCandidates(candidates) {
 
       const image = new Image()
       image.crossOrigin = 'anonymous'
-      image.onload = () => {
-        resolve(image)
-      }
+      image.onload = () => resolve(image)
       image.onerror = () => {
         index += 1
         tryLoad()
@@ -120,7 +154,11 @@ function AssetImage({ candidates, alt, className, style, imageRef }) {
   const [index, setIndex] = useState(0)
 
   if (!candidates?.length || index >= candidates.length) {
-    return <div className={`missing-asset ${className}`} style={style}>素材缺失</div>
+    return (
+      <div ref={imageRef} className={`missing-asset ${className ?? ''}`} style={style}>
+        Missing Asset
+      </div>
+    )
   }
 
   return (
@@ -138,33 +176,570 @@ function AssetImage({ candidates, alt, className, style, imageRef }) {
   )
 }
 
-function GlobalHeading({ currentScreen }) {
+function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
   return (
     <header className="global-heading">
       <div className="global-brand">
-        <span className="global-brand-mark">PXI</span>
+        <img
+          src="/nationalinstruments-logo.png"
+          alt="National Instruments"
+          className="global-brand-logo"
+          draggable={false}
+        />
         <span className="global-brand-name">Lab UI</span>
       </div>
 
       <nav className="global-nav" aria-label="Primary">
-        <button type="button" className="global-nav-item">
+        <button
+          type="button"
+          className={`global-nav-item ${currentScreen === 'dashboard' ? 'global-nav-item-active' : ''}`}
+          onClick={() => {
+            onNavigate('dashboard')
+          }}
+        >
           Dashboard
         </button>
         <button
           type="button"
-          className={`global-nav-item ${currentScreen === 'home' || currentScreen === 'builder' ? 'global-nav-item-active' : ''}`}
+          className={`global-nav-item ${currentScreen === 'home' || currentScreen === 'builder' || currentScreen === 'saves' ? 'global-nav-item-active' : ''}`}
+          onClick={() => {
+            onNavigate('home')
+          }}
         >
           PXI Configuration
         </button>
-        <button type="button" className="global-nav-item">
-          Other
+        <button
+          type="button"
+          className={`global-nav-item ${currentScreen === 'user' ? 'global-nav-item-active' : ''}`}
+          onClick={() => {
+            onNavigate('user')
+          }}
+        >
+          User
         </button>
       </nav>
+
+      {user ? (
+        <div className="global-account">
+          <span className="global-account-email">{user.email}</span>
+          <button type="button" className="global-signout-button" onClick={onSignOut}>
+            Sign Out
+          </button>
+        </div>
+      ) : null}
     </header>
   )
 }
 
+function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves }) {
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero dashboard-hero">
+        <div className="home-copy">
+          <p className="eyebrow">Dashboard</p>
+          <h1>All tools in one workspace.</h1>
+          <p className="hero-text">
+            Start from PXI Configuration, reopen saved layouts, and leave room for the next tools that will be added here.
+          </p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>2</strong>
+            <span>Active tools</span>
+          </article>
+          <article className="summary-card">
+            <strong>{savedConfigCount}</strong>
+            <span>Saved layouts</span>
+          </article>
+        </div>
+      </section>
+
+      <section className="home-grid">
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">Workspace</p>
+              <h2>Available tools</h2>
+            </div>
+          </div>
+
+          <div className="dashboard-tool-grid">
+            <button type="button" className="dashboard-tool-card dashboard-tool-card-active" onClick={onOpenConfiguration}>
+              <span className="dashboard-tool-kicker">Ready</span>
+              <strong>PXI Configuration</strong>
+              <p>Select a chassis, enter the builder, and create or edit layouts.</p>
+            </button>
+
+            <button type="button" className="dashboard-tool-card dashboard-tool-card-active" onClick={onOpenSaves}>
+              <span className="dashboard-tool-kicker">Ready</span>
+              <strong>Your Saves</strong>
+              <p>Open saved chassis layouts, continue editing, or remove old versions.</p>
+            </button>
+
+            <article className="dashboard-tool-card dashboard-tool-card-placeholder">
+              <span className="dashboard-tool-kicker">Placeholder</span>
+              <strong>Other Tool</strong>
+              <p>This space is reserved for the next utility you want to add to the site.</p>
+            </article>
+
+            <article className="dashboard-tool-card dashboard-tool-card-placeholder">
+              <span className="dashboard-tool-kicker">Placeholder</span>
+              <strong>Future Module</strong>
+              <p>Leave this card empty for a later workflow, report page, or engineering helper.</p>
+            </article>
+          </div>
+        </article>
+
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">Update Log</p>
+              <h2>Recent changes</h2>
+            </div>
+          </div>
+
+          <div className="update-log-list">
+            {UPDATE_LOG_ITEMS.map((item) => (
+              <article key={`${item.date}-${item.title}`} className="update-log-card">
+                <span className="update-log-date">{item.date}</span>
+                <strong>{item.title}</strong>
+                <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </article>
+      </section>
+    </div>
+  )
+}
+
+function UserScreen({
+  user,
+  savedConfigCount,
+  isLoadingConfigCount,
+  nextPassword,
+  passwordMessage,
+  passwordError,
+  passwordLoading,
+  onNextPasswordChange,
+  onPasswordSubmit,
+  onOpenSaves,
+}) {
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero user-hero">
+        <div className="home-copy">
+          <p className="eyebrow">User Interface</p>
+          <h1>Account overview for your PXI workspace.</h1>
+          <p className="hero-text">
+            This page is reserved for your personal account information and later will hold saved configurations, recent exports, and profile-level settings.
+          </p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>{user?.email ?? 'Unknown'}</strong>
+            <span>Signed-in account</span>
+          </article>
+          <article className="summary-card">
+            <strong>{isLoadingConfigCount ? '...' : savedConfigCount}</strong>
+            <span>Saved configurations</span>
+          </article>
+          <button type="button" className="summary-card summary-card-button" onClick={onOpenSaves}>
+            <strong>Your saves</strong>
+            <small>Open saved layouts</small>
+          </button>
+        </div>
+      </section>
+
+      <section className="home-grid">
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">Profile</p>
+              <h2>Current user</h2>
+            </div>
+          </div>
+
+          <div className="user-card-grid">
+            <article className="summary-card">
+              <strong>Email</strong>
+              <span>{user?.email ?? 'Unknown'}</span>
+            </article>
+            <article className="summary-card">
+              <strong>User ID</strong>
+              <span className="user-id-text">{user?.id ?? 'Unknown'}</span>
+            </article>
+            <article className="summary-card">
+              <strong>Status</strong>
+              <span>{user?.email_confirmed_at ? 'Email Confirmed' : 'Awaiting Email Confirmation'}</span>
+            </article>
+            <article className="summary-card">
+              <strong>Saved Configurations</strong>
+              <span>{isLoadingConfigCount ? 'Loading...' : `${savedConfigCount} saved layout(s)`}</span>
+            </article>
+          </div>
+        </article>
+
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">Settings</p>
+              <h2>Account settings</h2>
+            </div>
+          </div>
+
+          <form className="user-settings-form" onSubmit={onPasswordSubmit}>
+            <label className="auth-field">
+              <span>New Password</span>
+              <input
+                type="password"
+                value={nextPassword}
+                onChange={(event) => {
+                  onNextPasswordChange(event.target.value)
+                }}
+                minLength={6}
+                placeholder="Enter a new password"
+                required
+              />
+            </label>
+
+            {passwordError ? <div className="auth-message auth-message-error">{passwordError}</div> : null}
+            {passwordMessage ? <div className="auth-message auth-message-success">{passwordMessage}</div> : null}
+
+            <button type="submit" className="auth-submit user-settings-submit" disabled={passwordLoading}>
+              {passwordLoading ? 'Updating...' : 'Change Password'}
+            </button>
+          </form>
+        </article>
+      </section>
+    </div>
+  )
+}
+
+function SavesScreen({
+  savedConfigCount,
+  savedConfigurations,
+  savedConfigsError,
+  isLoadingSavedConfigurations,
+  deletingConfigId,
+  onOpenConfiguration,
+  onDeleteConfiguration,
+  onBackToConfiguration,
+}) {
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero saves-hero">
+        <div className="home-copy">
+          <div className="saves-hero-heading">
+            <button
+              type="button"
+              className="topbar-home-button saves-back-button"
+              onClick={onBackToConfiguration}
+              aria-label="Back to PXI Configuration"
+              title="Back to PXI Configuration"
+            >
+              ←
+            </button>
+            <p className="eyebrow">Your Saves</p>
+          </div>
+          <h1>Open, edit, or remove saved PXI layouts.</h1>
+          <p className="hero-text">
+            Choose a saved chassis configuration, reopen it in the builder, or return to PXI Configuration to create a new one.
+          </p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>{isLoadingSavedConfigurations ? '...' : savedConfigCount}</strong>
+            <span>Total saves</span>
+          </article>
+        </div>
+      </section>
+
+      <section className="home-grid">
+        <article className="home-panel">
+          <button
+            type="button"
+            className="topbar-home-button saves-back-button"
+            onClick={onBackToConfiguration}
+            aria-label="Back to PXI Configuration"
+            title="Back to PXI Configuration"
+          >
+            ←
+          </button>
+          <div className="section-title-row">
+            <div>
+              <button
+                type="button"
+                className="topbar-home-button saves-back-button"
+                onClick={onBackToConfiguration}
+                aria-label="Back to PXI Configuration"
+                title="Back to PXI Configuration"
+              >
+                ←
+              </button>
+              <div>
+                <p className="eyebrow">Saved Configurations</p>
+                <h2>Your saved chassis</h2>
+              </div>
+            </div>
+          </div>
+
+          {savedConfigsError ? <div className="auth-message auth-message-error">{savedConfigsError}</div> : null}
+
+          <div className="saved-config-list">
+            {isLoadingSavedConfigurations ? (
+              <div className="home-empty-state">Loading saved configurations...</div>
+            ) : savedConfigurations.length ? (
+              savedConfigurations.map((configuration) => (
+                <article key={configuration.id} className="saved-config-card">
+                  <div>
+                    <strong>{configuration.name}</strong>
+                    <span>{configuration.chassis_key}</span>
+                    <span>Updated {new Date(configuration.updated_at).toLocaleString()}</span>
+                  </div>
+                  <div className="saved-config-actions">
+                    <button
+                      type="button"
+                      className="slot-action"
+                      onClick={() => {
+                        onOpenConfiguration(configuration)
+                      }}
+                    >
+                      Open
+                    </button>
+                    <button
+                      type="button"
+                      className="slot-action slot-action-danger"
+                      onClick={() => {
+                        onDeleteConfiguration(configuration.id)
+                      }}
+                      disabled={deletingConfigId === configuration.id}
+                    >
+                      {deletingConfigId === configuration.id ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="home-empty-state">No saved configurations yet.</div>
+            )}
+          </div>
+        </article>
+      </section>
+    </div>
+  )
+}
+
+function AuthScreen({
+  logoTilt,
+  authQuote,
+  authMode,
+  email,
+  password,
+  confirmPassword,
+  showPassword,
+  showConfirmPassword,
+  passwordRules,
+  authError,
+  authNotice,
+  authLoading,
+  onModeChange,
+  onEmailChange,
+  onPasswordChange,
+  onConfirmPasswordChange,
+  onTogglePasswordVisibility,
+  onToggleConfirmPasswordVisibility,
+  onSubmit,
+  onLogoMove,
+  onLogoLeave,
+}) {
+  return (
+    <main className="page-shell auth-shell">
+      <section className="auth-panel">
+        <div className="auth-copy">
+          <div
+            className="auth-logo-card"
+            style={{
+              '--logo-rotate-x': `${logoTilt.x}deg`,
+              '--logo-rotate-y': `${logoTilt.y}deg`,
+            }}
+            onMouseMove={onLogoMove}
+            onMouseLeave={onLogoLeave}
+          >
+            <div className="auth-logo-stage">
+              <img
+                src="/nationalinstruments-logo.png"
+                alt="National Instruments"
+                className="auth-logo-image"
+                draggable={false}
+              />
+            </div>
+            <div className="auth-logo-glow" />
+            <div className="auth-quote-list">
+              <blockquote className="auth-quote-card">
+                <p>“To measure is to know.”</p>
+                <span>Lord Kelvin</span>
+              </blockquote>
+              <blockquote className="auth-quote-card">
+                <p>“What gets measured gets managed.”</p>
+                <span>Peter Drucker</span>
+              </blockquote>
+            </div>
+            <div className="auth-quote-random">
+              <p>{authQuote.text}</p>
+              <span>{authQuote.author}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="auth-card">
+          <div className="auth-card-header">
+            <div className="auth-mode-switch">
+              <button
+                type="button"
+                className={`auth-mode-button ${authMode === 'sign-in' ? 'auth-mode-button-active' : ''}`}
+                onClick={() => {
+                  onModeChange('sign-in')
+                }}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                className={`auth-mode-button ${authMode === 'sign-up' ? 'auth-mode-button-active' : ''}`}
+                onClick={() => {
+                  onModeChange('sign-up')
+                }}
+              >
+                Sign Up
+              </button>
+            </div>
+            <h2>{authMode === 'sign-in' ? 'Welcome back' : 'Create your account'}</h2>
+            <p>{authMode === 'sign-in' ? 'Use your email to access saved PXI configurations.' : 'Register with email and password. Email confirmation is enabled.'}</p>
+          </div>
+
+          <form className="auth-form" onSubmit={onSubmit}>
+            <label className="auth-field">
+              <span>Email</span>
+              <input type="email" value={email} onChange={(event) => onEmailChange(event.target.value)} required />
+            </label>
+
+            <label className="auth-field">
+              <span>Password</span>
+              <div className="auth-password-row">
+                <input
+                  className="auth-password-input"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => onPasswordChange(event.target.value)}
+                  minLength={6}
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={onTogglePasswordVisibility}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <img
+                    src={showPassword ? '/see/no%20see.png' : '/see/see.png'}
+                    alt=""
+                    className="auth-password-toggle-icon"
+                    draggable={false}
+                  />
+                </button>
+              </div>
+            </label>
+
+            {authMode === 'sign-up' ? (
+              <div className="auth-password-rules">
+                {passwordRules.map((rule) => (
+                  <div
+                    key={rule.key}
+                    className={`auth-password-rule ${rule.passed ? 'auth-password-rule-passed' : ''}`}
+                  >
+                    <span>{rule.passed ? '✓' : '•'}</span>
+                    <span>{rule.label}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {authMode === 'sign-up' ? (
+              <label className="auth-field">
+                <span>Confirm Password</span>
+                <div className="auth-password-row">
+                  <input
+                    className="auth-password-input"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(event) => onConfirmPasswordChange(event.target.value)}
+                    minLength={6}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="auth-password-toggle"
+                    onClick={onToggleConfirmPasswordVisibility}
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    title={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    <img
+                      src={showConfirmPassword ? '/see/no%20see.png' : '/see/see.png'}
+                      alt=""
+                      className="auth-password-toggle-icon"
+                      draggable={false}
+                    />
+                  </button>
+                </div>
+              </label>
+            ) : null}
+
+            {authError ? <div className="auth-message auth-message-error">{authError}</div> : null}
+            {authNotice ? <div className="auth-message auth-message-success">{authNotice}</div> : null}
+
+            <button type="submit" className="auth-submit" disabled={authLoading}>
+              {authLoading ? 'Processing...' : authMode === 'sign-in' ? 'Sign In' : 'Create Account'}
+            </button>
+          </form>
+        </div>
+      </section>
+    </main>
+  )
+}
+
 function App() {
+  const [logoTilt, setLogoTilt] = useState({ x: 0, y: 0 })
+  const [authQuote] = useState(() => AUTH_QUOTES[Math.floor(Math.random() * AUTH_QUOTES.length)])
+  const [authReady, setAuthReady] = useState(false)
+  const [user, setUser] = useState(null)
+  const [authMode, setAuthMode] = useState('sign-in')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authError, setAuthError] = useState('')
+  const [authNotice, setAuthNotice] = useState('')
+  const [savedConfigurations, setSavedConfigurations] = useState([])
+  const [savedConfigCount, setSavedConfigCount] = useState(0)
+  const [isLoadingSavedConfigurations, setIsLoadingSavedConfigurations] = useState(false)
+  const [savedConfigsError, setSavedConfigsError] = useState('')
+  const [currentConfigurationId, setCurrentConfigurationId] = useState(null)
+  const [configurationName, setConfigurationName] = useState('')
+  const [saveLoading, setSaveLoading] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [saveMessage, setSaveMessage] = useState('')
+  const [deletingConfigId, setDeletingConfigId] = useState(null)
+  const [nextPassword, setNextPassword] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordMessage, setPasswordMessage] = useState('')
   const [currentScreen, setCurrentScreen] = useState('home')
   const [selectedChassisKey, setSelectedChassisKey] = useState('pxie-1095')
   const [searchText, setSearchText] = useState('')
@@ -176,6 +751,7 @@ function App() {
   })
   const [draggedModuleKey, setDraggedModuleKey] = useState('')
   const [selectedModuleKey, setSelectedModuleKey] = useState('controller-8862')
+  const [moduleSearchText, setModuleSearchText] = useState('')
   const [placedModules, setPlacedModules] = useState({})
   const [activeSlotId, setActiveSlotId] = useState(null)
   const [hoverSlotId, setHoverSlotId] = useState(null)
@@ -183,12 +759,49 @@ function App() {
   const [showSlotAnchors, setShowSlotAnchors] = useState(true)
   const [isExportingImage, setIsExportingImage] = useState(false)
   const [openLibrarySections, setOpenLibrarySections] = useState({
-    controller: true,
-    module: true,
+    controller: false,
+    module: false,
     other: false,
   })
   const moduleThumbRefs = useRef({})
   const contextTimerRef = useRef(null)
+  const passwordRules = useMemo(() => getPasswordRules(password), [password])
+
+  useEffect(() => {
+    let mounted = true
+
+    async function loadSession() {
+      const { data, error } = await supabase.auth.getUser()
+
+      if (!mounted) {
+        return
+      }
+
+      if (error) {
+        setAuthError(error.message)
+      } else {
+        setUser(data.user ?? null)
+      }
+
+      setAuthReady(true)
+    }
+
+    loadSession()
+
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      setAuthReady(true)
+      if (session?.user) {
+        setCurrentScreen('home')
+        setAuthError('')
+      }
+    })
+
+    return () => {
+      mounted = false
+      data.subscription.unsubscribe()
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -201,7 +814,7 @@ function App() {
         ])
 
         if (responses.some((response) => !response.ok)) {
-          throw new Error('tmj 文件读取失败')
+          throw new Error('Failed to load tmj files')
         }
 
         const loadedMaps = await Promise.all(responses.map((response) => response.json()))
@@ -222,7 +835,7 @@ function App() {
         if (!cancelled) {
           setDataState({
             loading: false,
-            error: error instanceof Error ? error.message : '加载失败',
+            error: error instanceof Error ? error.message : 'Load failed',
             chassisMaps: {},
             moduleMaps: [],
           })
@@ -263,6 +876,44 @@ function App() {
     setHoverSlotId(null)
     setContextSlotId(null)
   }, [selectedChassisKey])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadSavedConfigurations() {
+      if (!user) {
+        setSavedConfigurations([])
+        setSavedConfigCount(0)
+        return
+      }
+
+      setIsLoadingSavedConfigurations(true)
+      setSavedConfigsError('')
+
+      const { data, error } = await supabase
+        .from('pxi_configurations')
+        .select('*')
+        .order('updated_at', { ascending: false })
+
+      if (!cancelled) {
+        if (error) {
+          setSavedConfigurations([])
+          setSavedConfigCount(0)
+          setSavedConfigsError(error.message)
+        } else {
+          setSavedConfigurations(data ?? [])
+          setSavedConfigCount(data?.length ?? 0)
+        }
+        setIsLoadingSavedConfigurations(false)
+      }
+    }
+
+    loadSavedConfigurations()
+
+    return () => {
+      cancelled = true
+    }
+  }, [user])
 
   const chassisModel = useMemo(() => {
     const selectedChassisMap = dataState.chassisMaps[selectedChassisKey]
@@ -323,6 +974,7 @@ function App() {
   }, [dataState.moduleMaps])
 
   const normalizedSearch = searchText.trim().toLowerCase()
+  const normalizedModuleSearch = moduleSearchText.trim().toLowerCase()
 
   const filteredChassisOptions = useMemo(() => {
     if (!normalizedSearch) {
@@ -336,21 +988,11 @@ function App() {
     )
   }, [normalizedSearch])
 
-  const filteredModuleLibrary = useMemo(() => {
-    if (!normalizedSearch) {
-      return moduleLibrary
-    }
-
-    return moduleLibrary.filter((module) =>
-      [module.label, module.tone].some((value) => value?.toLowerCase().includes(normalizedSearch)),
-    )
-  }, [moduleLibrary, normalizedSearch])
-
   const librarySections = useMemo(() => {
     const controllers = moduleLibrary.filter((module) => module.tone === 'controller')
     const modules = moduleLibrary.filter((module) => module.tone === 'module')
 
-    return [
+    const sections = [
       {
         key: 'controller',
         label: 'Controller',
@@ -379,7 +1021,21 @@ function App() {
         ],
       },
     ]
-  }, [moduleLibrary])
+
+    return sections.map((section) => {
+      const visibleItems = normalizedModuleSearch
+        ? section.items.filter((item) => item.label.toLowerCase().includes(normalizedModuleSearch))
+        : section.items
+
+      return {
+        ...section,
+        visibleItems,
+        visibleCount: visibleItems.filter((item) => !item.placeholder).length,
+        realItemCount: section.items.filter((item) => !item.placeholder).length,
+        placeholderCount: visibleItems.filter((item) => item.placeholder).length,
+      }
+    })
+  }, [moduleLibrary, normalizedModuleSearch])
 
   const previewLayout = useMemo(() => {
     if (!chassisModel) {
@@ -468,7 +1124,230 @@ function App() {
     }
   }, [chassisModel, draggedModuleKey, hoverSlotId, moduleLibrary])
 
-  const selectedChassis = CHASSIS_OPTIONS.find((option) => option.key === selectedChassisKey) ?? CHASSIS_OPTIONS[0]
+  const selectedChassis =
+    CHASSIS_OPTIONS.find((option) => option.key === selectedChassisKey) ?? CHASSIS_OPTIONS[0]
+
+  async function refreshSavedConfigurations() {
+    if (!user) {
+      setSavedConfigurations([])
+      setSavedConfigCount(0)
+      return
+    }
+
+    setIsLoadingSavedConfigurations(true)
+    setSavedConfigsError('')
+
+    const { data, error } = await supabase
+      .from('pxi_configurations')
+      .select('*')
+      .order('updated_at', { ascending: false })
+
+    if (error) {
+      setSavedConfigurations([])
+      setSavedConfigCount(0)
+      setSavedConfigsError(error.message)
+    } else {
+      setSavedConfigurations(data ?? [])
+      setSavedConfigCount(data?.length ?? 0)
+    }
+
+    setIsLoadingSavedConfigurations(false)
+  }
+
+  async function handleAuthSubmit(event) {
+    event.preventDefault()
+    setAuthLoading(true)
+    setAuthError('')
+    setAuthNotice('')
+
+    try {
+      if (authMode === 'sign-up') {
+        if (passwordRules.some((rule) => !rule.passed)) {
+          throw new Error('Password does not meet all required rules.')
+        }
+
+        if (password !== confirmPassword) {
+          throw new Error('Passwords do not match.')
+        }
+
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+
+        if (error) {
+          throw error
+        }
+
+        setAuthNotice('Account created. Check your email and confirm before signing in.')
+        setAuthMode('sign-in')
+        setPassword('')
+        setConfirmPassword('')
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (error) {
+          throw error
+        }
+
+        setAuthNotice('')
+      }
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Authentication failed')
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  async function handleSignOut() {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      setAuthError(error.message)
+      return
+    }
+
+    setUser(null)
+    setCurrentScreen('home')
+    setPlacedModules({})
+    setActiveSlotId(null)
+    setHoverSlotId(null)
+    setContextSlotId(null)
+    setSavedConfigCount(0)
+    setSavedConfigurations([])
+    setSavedConfigsError('')
+    setCurrentConfigurationId(null)
+    setConfigurationName('')
+    setSaveError('')
+    setSaveMessage('')
+    setNextPassword('')
+    setPasswordError('')
+    setPasswordMessage('')
+  }
+
+  async function handlePasswordSubmit(event) {
+    event.preventDefault()
+    setPasswordLoading(true)
+    setPasswordError('')
+    setPasswordMessage('')
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: nextPassword,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      setPasswordMessage('Password updated successfully.')
+      setNextPassword('')
+    } catch (error) {
+      setPasswordError(error instanceof Error ? error.message : 'Failed to update password')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  async function handleSaveConfiguration() {
+    if (!user) {
+      return
+    }
+
+    const trimmedName = configurationName.trim()
+
+    if (!trimmedName) {
+      setSaveError('Please enter a configuration name.')
+      setSaveMessage('')
+      return
+    }
+
+    setSaveLoading(true)
+    setSaveError('')
+    setSaveMessage('')
+
+    const payload = {
+      user_id: user.id,
+      name: trimmedName,
+      chassis_key: selectedChassisKey,
+      placed_modules: placedModules,
+      updated_at: new Date().toISOString(),
+    }
+
+    let error = null
+    let data = null
+
+    if (currentConfigurationId) {
+      const response = await supabase
+        .from('pxi_configurations')
+        .update(payload)
+        .eq('id', currentConfigurationId)
+        .select()
+        .single()
+
+      error = response.error
+      data = response.data
+    } else {
+      const response = await supabase
+        .from('pxi_configurations')
+        .insert(payload)
+        .select()
+        .single()
+
+      error = response.error
+      data = response.data
+    }
+
+    if (error) {
+      setSaveError(error.message)
+      setSaveMessage('')
+    } else {
+      setCurrentConfigurationId(data.id)
+      setConfigurationName(data.name)
+      setSaveMessage(currentConfigurationId ? 'Configuration updated.' : 'Configuration saved.')
+      await refreshSavedConfigurations()
+    }
+
+    setSaveLoading(false)
+  }
+
+  function handleOpenConfiguration(configuration) {
+    setCurrentConfigurationId(configuration.id)
+    setConfigurationName(configuration.name)
+    setSelectedChassisKey(configuration.chassis_key)
+    setPlacedModules(configuration.placed_modules ?? {})
+    setActiveSlotId(null)
+    setHoverSlotId(null)
+    setContextSlotId(null)
+    setCurrentScreen('builder')
+    setSaveError('')
+    setSaveMessage('')
+  }
+
+  async function handleDeleteConfiguration(configurationId) {
+    setDeletingConfigId(configurationId)
+    setSavedConfigsError('')
+
+    const { error } = await supabase
+      .from('pxi_configurations')
+      .delete()
+      .eq('id', configurationId)
+
+    if (error) {
+      setSavedConfigsError(error.message)
+    } else {
+      if (currentConfigurationId === configurationId) {
+        setCurrentConfigurationId(null)
+        setConfigurationName('')
+        setSaveMessage('')
+      }
+      await refreshSavedConfigurations()
+    }
+
+    setDeletingConfigId(null)
+  }
 
   function placeModuleAtSlot(slotId, moduleKey) {
     setPlacedModules((current) => ({
@@ -498,7 +1377,7 @@ function App() {
   }
 
   function handleAddFromSection(section) {
-    const availableItems = section.items.filter((item) => !item.placeholder)
+    const availableItems = (section.visibleItems ?? section.items).filter((item) => !item.placeholder)
     const targetItem =
       availableItems.find((item) => item.key === selectedModuleKey) ?? availableItems[0] ?? null
     const nextEmptySlot = findNextEmptySlot()
@@ -614,33 +1493,161 @@ function App() {
     }
   }
 
+  function handleLogoMove(event) {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const offsetX = event.clientX - rect.left
+    const offsetY = event.clientY - rect.top
+    const rotateY = ((offsetX / rect.width) - 0.5) * 14
+    const rotateX = (0.5 - (offsetY / rect.height)) * 14
+
+    setLogoTilt({
+      x: rotateX,
+      y: rotateY,
+    })
+  }
+
+  if (!authReady) {
+    return (
+      <main className="page-shell auth-shell">
+        <section className="auth-panel auth-panel-loading">
+          <div className="auth-card">
+            <h2>Loading authentication...</h2>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  if (!user) {
+    return (
+      <AuthScreen
+        logoTilt={logoTilt}
+        authQuote={authQuote}
+        authMode={authMode}
+        email={email}
+        password={password}
+        confirmPassword={confirmPassword}
+        showPassword={showPassword}
+        showConfirmPassword={showConfirmPassword}
+        passwordRules={passwordRules}
+        authError={authError}
+        authNotice={authNotice}
+        authLoading={authLoading}
+        onModeChange={(mode) => {
+          setAuthMode(mode)
+          setAuthError('')
+          setAuthNotice('')
+          setPassword('')
+          setConfirmPassword('')
+          setShowPassword(false)
+          setShowConfirmPassword(false)
+        }}
+        onEmailChange={setEmail}
+        onPasswordChange={setPassword}
+        onConfirmPasswordChange={setConfirmPassword}
+        onTogglePasswordVisibility={() => {
+          setShowPassword((current) => !current)
+        }}
+        onToggleConfirmPasswordVisibility={() => {
+          setShowConfirmPassword((current) => !current)
+        }}
+        onSubmit={handleAuthSubmit}
+        onLogoMove={handleLogoMove}
+        onLogoLeave={() => {
+          setLogoTilt({ x: 0, y: 0 })
+        }}
+      />
+    )
+  }
+
+  if (currentScreen === 'user') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <UserScreen
+          user={user}
+          savedConfigCount={savedConfigCount}
+          isLoadingConfigCount={isLoadingSavedConfigurations}
+          nextPassword={nextPassword}
+          passwordMessage={passwordMessage}
+          passwordError={passwordError}
+          passwordLoading={passwordLoading}
+          onNextPasswordChange={setNextPassword}
+          onPasswordSubmit={handlePasswordSubmit}
+          onOpenSaves={() => {
+            setCurrentScreen('saves')
+          }}
+        />
+      </main>
+    )
+  }
+
+  if (currentScreen === 'dashboard') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <DashboardScreen
+          savedConfigCount={savedConfigCount}
+          onOpenConfiguration={() => {
+            setCurrentScreen('home')
+          }}
+          onOpenSaves={() => {
+            setCurrentScreen('saves')
+          }}
+        />
+      </main>
+    )
+  }
+
+  if (currentScreen === 'saves') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <SavesScreen
+          savedConfigCount={savedConfigCount}
+          savedConfigurations={savedConfigurations}
+          savedConfigsError={savedConfigsError}
+          isLoadingSavedConfigurations={isLoadingSavedConfigurations}
+          deletingConfigId={deletingConfigId}
+          onOpenConfiguration={handleOpenConfiguration}
+          onDeleteConfiguration={handleDeleteConfiguration}
+          onBackToConfiguration={() => {
+            setCurrentScreen('home')
+          }}
+        />
+      </main>
+    )
+  }
+
   if (currentScreen === 'home') {
     return (
       <main className="page-shell home-shell">
-        <GlobalHeading currentScreen={currentScreen} />
+        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+
         <section className="home-hero">
           <div className="home-copy">
-            <p className="eyebrow">PXI Configuration Home</p>
-            <h1>先选机箱，再进入板卡与控制器配置。</h1>
+            <h1>Choose a chassis and start building.</h1>
             <p className="hero-text">
-              Home 页先做成入口界面。这里负责选择要配置的机箱，并提前看当前可用的控制器和板卡。
-              你后面上传更多机箱素材后，我再把这些留白卡替换成真实模板。
+              Select a PXI chassis, enter the builder, and save your layout to your account.
             </p>
           </div>
 
           <div className="home-summary">
             <article className="summary-card">
               <strong>{CHASSIS_OPTIONS.filter((item) => item.status === 'available').length}</strong>
-              <span>已接入机箱</span>
+              <span>Available chassis</span>
             </article>
-            <article className="summary-card">
-              <strong>Step 1</strong>
-              <span>控制器模板</span>
-            </article>
-            <article className="summary-card">
-              <strong>Next</strong>
-              <span>板卡模板</span>
-            </article>
+            <button
+              type="button"
+              className="summary-card summary-card-button"
+              onClick={() => {
+                setCurrentScreen('saves')
+              }}
+            >
+              <strong>{savedConfigCount}</strong>
+              <span>Your saves</span>
+              <small>Open saved layouts</small>
+            </button>
           </div>
         </section>
 
@@ -649,14 +1656,14 @@ function App() {
             <div className="section-title-row">
               <div>
                 <p className="eyebrow">Chassis</p>
-                <h2>选择机箱</h2>
+                <h2>Choose a chassis</h2>
               </div>
               <label className="home-search">
                 <span className="home-search-label">Search</span>
                 <input
                   type="search"
                   className="home-search-input"
-                  placeholder="搜索机箱、板卡、控制器"
+                  placeholder="Search chassis"
                   value={searchText}
                   onChange={(event) => {
                     setSearchText(event.target.value)
@@ -671,11 +1678,11 @@ function App() {
                 const isAvailable = option.status === 'available'
 
                 return (
-                <button
-                  key={option.key}
-                  type="button"
-                  className={`chassis-option ${isActive ? 'chassis-option-active' : ''} ${
-                    isAvailable ? '' : 'chassis-option-placeholder'
+                  <button
+                    key={option.key}
+                    type="button"
+                    className={`chassis-option ${isActive ? 'chassis-option-active' : ''} ${
+                      isAvailable ? '' : 'chassis-option-placeholder'
                     }`}
                     onClick={() => {
                       setSelectedChassisKey(option.key)
@@ -690,17 +1697,20 @@ function App() {
                         />
                       ) : (
                         <div className="chassis-placeholder-visual">
-                          <span>待上传机箱图片</span>
+                          <span>Image Placeholder</span>
                         </div>
                       )}
                     </div>
+
                     <div className="chassis-option-top">
                       <strong>{option.label}</strong>
                       <span className={`option-badge ${isAvailable ? 'option-badge-live' : ''}`}>
                         {isAvailable ? 'Ready' : 'Coming'}
                       </span>
                     </div>
+
                     <p>{option.note}</p>
+
                     <div className="chassis-option-actions">
                       {isAvailable ? (
                         <button
@@ -709,45 +1719,26 @@ function App() {
                           onClick={(event) => {
                             event.stopPropagation()
                             setSelectedChassisKey(option.key)
+                            setCurrentConfigurationId(null)
+                            setConfigurationName('')
+                            setSaveError('')
+                            setSaveMessage('')
                             setCurrentScreen('builder')
                           }}
                         >
-                          进入配置
+                          Open Builder
                         </button>
                       ) : (
-                        <span className="chassis-waiting-text">等待素材接入</span>
+                        <span className="chassis-waiting-text">Waiting for assets</span>
                       )}
                     </div>
                   </button>
                 )
               })}
             </div>
+
             {!filteredChassisOptions.length ? (
-              <div className="home-empty-state">没有匹配到机箱，换个关键词试试。</div>
-            ) : null}
-          </article>
-
-          <article className="home-panel">
-            <div className="section-title-row">
-              <div>
-                <p className="eyebrow">Catalog</p>
-                <h2>控制器与板卡</h2>
-              </div>
-            </div>
-
-            <div className="catalog-grid">
-              {filteredModuleLibrary.map((module) => (
-                <article key={module.key} className="catalog-card">
-                  <div className={`module-chip module-chip-${module.tone}`}>{module.label}</div>
-                  <div className="catalog-thumb">
-                    <AssetImage candidates={module.imageCandidates} alt={module.label} className="catalog-thumb-image" />
-                  </div>
-                  <span>{module.tone === 'controller' ? '控制器' : '板卡模块'}</span>
-                </article>
-              ))}
-            </div>
-            {!filteredModuleLibrary.length ? (
-              <div className="home-empty-state">没有匹配到板卡或控制器。</div>
+              <div className="home-empty-state">No matching chassis found.</div>
             ) : null}
           </article>
         </section>
@@ -757,20 +1748,7 @@ function App() {
 
   return (
     <main className="page-shell builder-shell">
-      <GlobalHeading currentScreen={currentScreen} />
-      <div className="page-topbar">
-        <button
-          type="button"
-          className="topbar-home-button"
-          onClick={() => {
-            setCurrentScreen('home')
-          }}
-          aria-label="返回主界面"
-          title="返回主界面"
-        >
-          ←
-        </button>
-      </div>
+      <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
 
       <section className="builder-layout">
         <aside className="module-sidebar">
@@ -782,30 +1760,34 @@ function App() {
                 onClick={() => {
                   setCurrentScreen('home')
                 }}
-                aria-label="返回主界面"
-                title="返回主界面"
+                aria-label="Back to Home"
+                title="Back to Home"
               >
                 ←
               </button>
               <p className="eyebrow">Module Library</p>
             </div>
-            <h1>选择模块，然后拖进机箱槽位。</h1>
+            <h1>Select modules and place them into the chassis.</h1>
             <p className="hero-text">
-              现在支持从左侧模块库拖放到右侧机箱。松手后会自动吸附到最近的槽位点。
+              You can click a module, drag it into the chassis, or use the Add button to place it into the next empty slot.
             </p>
             <div className="builder-nav">
-              <button
-                type="button"
-                className="back-home-button"
-                onClick={() => {
-                  setCurrentScreen('home')
-                }}
-              >
-                返回 Home
-              </button>
               <span className="builder-nav-label">{selectedChassis.label}</span>
             </div>
           </div>
+
+          <label className="module-search">
+            <span className="home-search-label">Search Modules</span>
+            <input
+              type="search"
+              className="home-search-input module-search-input"
+              placeholder="Search PXIe modules"
+              value={moduleSearchText}
+              onChange={(event) => {
+                setModuleSearchText(event.target.value)
+              }}
+            />
+          </label>
 
           <div className="module-list">
             {librarySections.map((section) => (
@@ -825,7 +1807,12 @@ function App() {
                       }))
                     }}
                   >
-                    <span>{section.label}</span>
+                    <span className="library-section-title">
+                      <span>{section.label}</span>
+                      <span className="library-section-count">
+                        {section.visibleCount}/{section.realItemCount || 0}
+                      </span>
+                    </span>
                     <span className="library-section-arrow">
                       {openLibrarySections[section.key] ? '-' : '+'}
                     </span>
@@ -836,9 +1823,7 @@ function App() {
                     onClick={() => {
                       handleAddFromSection(section)
                     }}
-                    disabled={
-                      !section.items.some((item) => !item.placeholder) || !findNextEmptySlot()
-                    }
+                    disabled={!section.visibleItems.some((item) => !item.placeholder) || !findNextEmptySlot()}
                   >
                     Add
                   </button>
@@ -846,7 +1831,7 @@ function App() {
 
                 {openLibrarySections[section.key] ? (
                   <div className="library-section-items">
-                    {section.items.map((item) => {
+                    {section.visibleItems.length ? section.visibleItems.map((item) => {
                       const isSelected = !item.placeholder && selectedModuleKey === item.key
 
                       return (
@@ -887,7 +1872,7 @@ function App() {
                             }
                           }}
                         >
-                          <span>{item.label}</span>
+                          <span className="library-item-label">{item.label}</span>
                           <span className="library-item-meta">
                             {item.placeholder ? 'placeholder' : isSelected ? 'selected' : 'available'}
                           </span>
@@ -906,7 +1891,9 @@ function App() {
                           ) : null}
                         </button>
                       )
-                    })}
+                    }) : (
+                      <div className="library-empty-state">No matching modules in this section.</div>
+                    )}
                   </div>
                 ) : null}
               </section>
@@ -918,7 +1905,7 @@ function App() {
           <div className="canvas-header">
             <div>
               <p className="eyebrow">Chassis Canvas</p>
-              <h2>{selectedChassis.label} 槽位拖放预览</h2>
+              <h2>{selectedChassis.label} slot preview</h2>
             </div>
             <div className="canvas-badge-group">
               <span className="panel-badge">{chassisModel?.slots.length ?? 0} slots</span>
@@ -940,10 +1927,38 @@ function App() {
                   setShowSlotAnchors((current) => !current)
                 }}
               >
-                {showSlotAnchors ? '隐藏锚点' : '显示锚点'}
+                {showSlotAnchors ? 'Hide Anchors' : 'Show Anchors'}
               </button>
             </div>
           </div>
+
+          <div className="builder-save-bar">
+            <label className="builder-save-field">
+              <span>Configuration Name</span>
+              <input
+                type="text"
+                value={configurationName}
+                onChange={(event) => {
+                  setConfigurationName(event.target.value)
+                  setSaveError('')
+                  setSaveMessage('')
+                }}
+                placeholder="Enter a name for this layout"
+              />
+            </label>
+
+            <button
+              type="button"
+              className="auth-submit builder-save-button"
+              onClick={handleSaveConfiguration}
+              disabled={saveLoading}
+            >
+              {saveLoading ? 'Saving...' : currentConfigurationId ? 'Update Save' : 'Save Configuration'}
+            </button>
+          </div>
+
+          {saveError ? <div className="auth-message auth-message-error builder-save-message">{saveError}</div> : null}
+          {saveMessage ? <div className="auth-message auth-message-success builder-save-message">{saveMessage}</div> : null}
 
           <div
             className="canvas-dropzone"
@@ -962,12 +1977,12 @@ function App() {
               }
             }}
           >
-            {dataState.loading ? <div className="preview-empty">正在读取 tmj 文件...</div> : null}
+            {dataState.loading ? <div className="preview-empty">Loading tmj files...</div> : null}
             {!dataState.loading && dataState.error ? (
-              <div className="preview-empty">tmj 加载失败：{dataState.error}</div>
+              <div className="preview-empty">Failed to load tmj: {dataState.error}</div>
             ) : null}
             {!dataState.loading && !dataState.error && !chassisModel ? (
-              <div className="preview-empty">未找到机箱图层或槽位点。</div>
+              <div className="preview-empty">No chassis image layer or slot anchors were found.</div>
             ) : null}
 
             {chassisModel && previewLayout ? (
@@ -1082,42 +2097,6 @@ function App() {
             ) : null}
           </div>
 
-          <div className="slot-summary">
-            {chassisModel?.slots.map((slot) => (
-              <article
-                key={slot.id}
-                className={`slot-summary-card ${activeSlotId === slot.id ? 'slot-summary-card-active' : ''}`}
-              >
-                <span>Slot {slot.index}</span>
-                <strong>{placedModules[slot.id] ?? 'Empty'}</strong>
-                <div className="slot-summary-actions">
-                  <button
-                    type="button"
-                    className="slot-action"
-                    onClick={() => {
-                      setActiveSlotId(slot.id)
-                      if (!placedModules[slot.id] && selectedModuleKey) {
-                        placeModuleAtSlot(slot.id, selectedModuleKey)
-                      }
-                    }}
-                  >
-                    {placedModules[slot.id] ? '选中' : '放入'}
-                  </button>
-                  {placedModules[slot.id] ? (
-                    <button
-                      type="button"
-                      className="slot-action slot-action-danger"
-                      onClick={() => {
-                        removeModuleAtSlot(slot.id)
-                      }}
-                    >
-                      删除板卡
-                    </button>
-                  ) : null}
-                </div>
-              </article>
-            ))}
-          </div>
         </section>
       </section>
     </main>

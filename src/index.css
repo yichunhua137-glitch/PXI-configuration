@@ -2,11 +2,27 @@
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #25311d;
+  color: #003325;
+  --ni-green: #00ad7c;
+  --ni-green-dark: #003325;
+  --ni-blue-dark: #1b2552;
+  --ni-white: #ffffff;
+  --ni-gray-light: #ececed;
+  --ni-silver: #9fa1a4;
+  --ni-black: #000000;
+  --ni-text: #003325;
+  --ni-text-muted: #4d615a;
+  --ni-border: #cfd4d1;
+  --ni-panel: #ffffff;
+  --ni-panel-alt: #f6f7f7;
+  --ni-radius-sm: 4px;
+  --ni-radius-md: 8px;
+  --ni-radius-lg: 12px;
   background:
-    radial-gradient(circle at top left, rgba(171, 209, 90, 0.16), transparent 28%),
-    radial-gradient(circle at 88% 12%, rgba(123, 182, 61, 0.12), transparent 22%),
-    linear-gradient(180deg, #fcfef9 0%, #f3f8ea 46%, #eef5e3 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)),
+    linear-gradient(90deg, transparent 0, transparent 31px, rgba(159, 161, 164, 0.08) 31px, rgba(159, 161, 164, 0.08) 32px),
+    linear-gradient(0deg, transparent 0, transparent 31px, rgba(159, 161, 164, 0.08) 31px, rgba(159, 161, 164, 0.08) 32px),
+    #ececed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
