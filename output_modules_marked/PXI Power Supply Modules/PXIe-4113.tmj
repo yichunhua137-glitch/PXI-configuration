@@ -1,0 +1,54 @@
+{
+  "compressionlevel": -1,
+  "height": 843,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "anchors",
+      "objects": [
+        {
+          "height": 0,
+          "id": 1,
+          "name": "anchor_top_right",
+          "point": true,
+          "rotation": 0,
+          "type": "anchor",
+          "visible": true,
+          "width": 0,
+          "x": 129,
+          "y": 0
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": 2,
+      "image": "PXIe-4113.png",
+      "imageheight": 843,
+      "imagewidth": 130,
+      "name": "image",
+      "opacity": 1,
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 2,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.0",
+  "tileheight": 1,
+  "tilesets": [],
+  "tilewidth": 1,
+  "type": "map",
+  "version": "1.10",
+  "width": 130
+}

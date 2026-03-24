@@ -1,0 +1,978 @@
+[
+  {
+    "key": "flex-rio-signal-generator-integrated-io-modules-pxie-5745",
+    "label": "PXIe-5745",
+    "category": "Flex RIO signal Generator INtegrated IO modules",
+    "tone": "module",
+    "tmjPath": "/module-library/Flex%20RIO%20signal%20Generator%20INtegrated%20IO%20modules/PXIe-5745.tmj",
+    "imagePath": "/module-library/Flex%20RIO%20signal%20Generator%20INtegrated%20IO%20modules/PXIe-5745.png"
+  },
+  {
+    "key": "flexrio-camera-interface-modules-pxie-1486",
+    "label": "PXIe-1486",
+    "category": "FlexRIO Camera Interface Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1486.tmj",
+    "imagePath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1486.png"
+  },
+  {
+    "key": "flexrio-camera-interface-modules-pxie-1487",
+    "label": "PXIe-1487",
+    "category": "FlexRIO Camera Interface Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1487.tmj",
+    "imagePath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1487.png"
+  },
+  {
+    "key": "flexrio-camera-interface-modules-pxie-1489",
+    "label": "PXIe-1489",
+    "category": "FlexRIO Camera Interface Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1489.tmj",
+    "imagePath": "/module-library/FlexRIO%20Camera%20Interface%20Modules/PXIe-1489.png"
+  },
+  {
+    "key": "flexrio-coprocessor-modules-pxie-7903",
+    "label": "PXIe-7903",
+    "category": "FlexRIO Coprocessor Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7903.tmj",
+    "imagePath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7903.png"
+  },
+  {
+    "key": "flexrio-coprocessor-modules-pxie-7912",
+    "label": "PXIe-7912",
+    "category": "FlexRIO Coprocessor Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7912.tmj",
+    "imagePath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7912.png"
+  },
+  {
+    "key": "flexrio-coprocessor-modules-pxie-7915",
+    "label": "PXIe-7915",
+    "category": "FlexRIO Coprocessor Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7915.tmj",
+    "imagePath": "/module-library/FlexRIO%20Coprocessor%20Modules/PXIe-7915.png"
+  },
+  {
+    "key": "flexrio-transceiver-integrated-io-modules-pxie-5785",
+    "label": "PXIe-5785",
+    "category": "FlexRIO Transceiver Integrated IO  Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/FlexRIO%20Transceiver%20Integrated%20IO%20%20Modules/PXIe-5785.tmj",
+    "imagePath": "/module-library/FlexRIO%20Transceiver%20Integrated%20IO%20%20Modules/PXIe-5785.png"
+  },
+  {
+    "key": "fpga-modules-for-rio-pxie-5763",
+    "label": "PXIe-5763",
+    "category": "FPGA modules for RIO",
+    "tone": "module",
+    "tmjPath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5763.tmj",
+    "imagePath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5763.png"
+  },
+  {
+    "key": "fpga-modules-for-rio-pxie-5764",
+    "label": "PXIe-5764",
+    "category": "FPGA modules for RIO",
+    "tone": "module",
+    "tmjPath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5764.tmj",
+    "imagePath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5764.png"
+  },
+  {
+    "key": "fpga-modules-for-rio-pxie-5774",
+    "label": "PXIe-5774",
+    "category": "FPGA modules for RIO",
+    "tone": "module",
+    "tmjPath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5774.tmj",
+    "imagePath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5774.png"
+  },
+  {
+    "key": "fpga-modules-for-rio-pxie-5775",
+    "label": "PXIe-5775",
+    "category": "FPGA modules for RIO",
+    "tone": "module",
+    "tmjPath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5775.tmj",
+    "imagePath": "/module-library/FPGA%20modules%20for%20RIO/PXIe-5775.png"
+  },
+  {
+    "key": "lcr-pxie-4190",
+    "label": "PXIe-4190",
+    "category": "LCR",
+    "tone": "module",
+    "tmjPath": "/module-library/LCR/PXIe-4190.tmj",
+    "imagePath": "/module-library/LCR/PXIe-4190.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5105",
+    "label": "PXIe-5105",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5105.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5105.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5108-4ch-02-original",
+    "label": "PXIe-5108_4ch_02.original",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5108_4ch_02.original.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5108_4ch_02.original.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5110",
+    "label": "PXIe-5110",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5110.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5110.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5111",
+    "label": "PXIe-5111",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5111.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5111.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5113",
+    "label": "PXIe-5113",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5113.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5113.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5114",
+    "label": "PXIe-5114",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5114.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5114.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5122",
+    "label": "PXIe-5122",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5122.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5122.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5160",
+    "label": "PXIe-5160",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5160.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5160.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5162",
+    "label": "PXIe-5162",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5162.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5162.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5163",
+    "label": "PXIe-5163",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5163.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5163.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5164",
+    "label": "PXIe-5164",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5164.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5164.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5172-4ch",
+    "label": "PXIe-5172 4ch",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5172%204ch.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5172%204ch.png"
+  },
+  {
+    "key": "oscilloscopes-pxie-5172-8ch",
+    "label": "PXIe-5172 8ch",
+    "category": "Oscilloscopes",
+    "tone": "module",
+    "tmjPath": "/module-library/Oscilloscopes/PXIe-5172%208ch.tmj",
+    "imagePath": "/module-library/Oscilloscopes/PXIe-5172%208ch.png"
+  },
+  {
+    "key": "pxi-controller-pxie-8822",
+    "label": "PXIe-8822",
+    "category": "PXI Controller",
+    "tone": "controller",
+    "tmjPath": "/module-library/PXI%20Controller/PXIe-8822.tmj",
+    "imagePath": "/module-library/PXI%20Controller/PXIe-8822.png"
+  },
+  {
+    "key": "pxi-controller-pxie-8842-without-gpib",
+    "label": "PXIe-8842 without GPIB",
+    "category": "PXI Controller",
+    "tone": "controller",
+    "tmjPath": "/module-library/PXI%20Controller/PXIe-8842%20without%20GPIB.tmj",
+    "imagePath": "/module-library/PXI%20Controller/PXIe-8842%20without%20GPIB.png"
+  },
+  {
+    "key": "pxi-controller-pxie-8862-without-gpib-with-rd",
+    "label": "PXIe-8862 without GPIB with RD",
+    "category": "PXI Controller",
+    "tone": "controller",
+    "tmjPath": "/module-library/PXI%20Controller/PXIe-8862%20without%20GPIB%20with%20RD.tmj",
+    "imagePath": "/module-library/PXI%20Controller/PXIe-8862%20without%20GPIB%20with%20RD.png"
+  },
+  {
+    "key": "pxi-controller-pxie-8881",
+    "label": "PXIe-8881",
+    "category": "PXI Controller",
+    "tone": "controller",
+    "tmjPath": "/module-library/PXI%20Controller/PXIe-8881.tmj",
+    "imagePath": "/module-library/PXI%20Controller/PXIe-8881.png"
+  },
+  {
+    "key": "pxi-digital-multimeter-modules-pxie-4080",
+    "label": "PXIe-4080",
+    "category": "PXI Digital Multimeter Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4080.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4080.png"
+  },
+  {
+    "key": "pxi-digital-multimeter-modules-pxie-4081",
+    "label": "PXIe-4081",
+    "category": "PXI Digital Multimeter Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4081.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4081.png"
+  },
+  {
+    "key": "pxi-digital-multimeter-modules-pxie-4082",
+    "label": "PXIe-4082",
+    "category": "PXI Digital Multimeter Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4082.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Multimeter%20Modules/PXIe-4082.png"
+  },
+  {
+    "key": "pxi-digital-pattern-instrument-modules-pxie-6570",
+    "label": "PXIe-6570",
+    "category": "PXI digital Pattern Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20digital%20Pattern%20Instrument%20Modules/PXIe-6570.tmj",
+    "imagePath": "/module-library/PXI%20digital%20Pattern%20Instrument%20Modules/PXIe-6570.png"
+  },
+  {
+    "key": "pxi-digital-pattern-instrument-modules-pxie-6571",
+    "label": "PXIe-6571",
+    "category": "PXI digital Pattern Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20digital%20Pattern%20Instrument%20Modules/PXIe-6571.tmj",
+    "imagePath": "/module-library/PXI%20digital%20Pattern%20Instrument%20Modules/PXIe-6571.png"
+  },
+  {
+    "key": "pxi-digital-waveform-instrument-modules-pxie-6544",
+    "label": "PXIe-6544",
+    "category": "PXI Digital Waveform Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6544.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6544.png"
+  },
+  {
+    "key": "pxi-digital-waveform-instrument-modules-pxie-6545",
+    "label": "PXIe-6545",
+    "category": "PXI Digital Waveform Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6545.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6545.png"
+  },
+  {
+    "key": "pxi-digital-waveform-instrument-modules-pxie-6547",
+    "label": "PXIe-6547",
+    "category": "PXI Digital Waveform Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6547.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6547.png"
+  },
+  {
+    "key": "pxi-digital-waveform-instrument-modules-pxie-6548",
+    "label": "PXIe-6548",
+    "category": "PXI Digital Waveform Instrument Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6548.tmj",
+    "imagePath": "/module-library/PXI%20Digital%20Waveform%20Instrument%20Modules/PXIe-6548.png"
+  },
+  {
+    "key": "pxi-displacement-input-modules-pxie-4340",
+    "label": "PXIe-4340",
+    "category": "PXI DIsplacement Input Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20DIsplacement%20Input%20Modules/PXIe-4340.tmj",
+    "imagePath": "/module-library/PXI%20DIsplacement%20Input%20Modules/PXIe-4340.png"
+  },
+  {
+    "key": "pxi-electronic-load-modules-pxie-4051",
+    "label": "PXIe-4051",
+    "category": "PXI Electronic Load Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Electronic%20Load%20Modules/PXIe-4051.tmj",
+    "imagePath": "/module-library/PXI%20Electronic%20Load%20Modules/PXIe-4051.png"
+  },
+  {
+    "key": "pxi-high-speed-serial-modules-pxie-6592r",
+    "label": "PXIe-6592R",
+    "category": "PXI High-Speed Serial Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6592R.tmj",
+    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6592R.png"
+  },
+  {
+    "key": "pxi-high-speed-serial-modules-pxie-6593",
+    "label": "PXIe-6593",
+    "category": "PXI High-Speed Serial Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6593.tmj",
+    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6593.png"
+  },
+  {
+    "key": "pxi-high-speed-serial-modules-pxie-6594",
+    "label": "PXIe-6594",
+    "category": "PXI High-Speed Serial Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6594.tmj",
+    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6594.png"
+  },
+  {
+    "key": "pxi-high-speed-serial-modules-pxie-7092",
+    "label": "PXIe-7092",
+    "category": "PXI High-Speed Serial Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7092.tmj",
+    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7092.png"
+  },
+  {
+    "key": "pxi-high-speed-serial-modules-pxie-7093",
+    "label": "PXIe-7093",
+    "category": "PXI High-Speed Serial Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7093.tmj",
+    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7093.png"
+  },
+  {
+    "key": "pxi-power-supply-modules-pxie-4112",
+    "label": "PXIe-4112",
+    "category": "PXI Power Supply Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4112.tmj",
+    "imagePath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4112.png"
+  },
+  {
+    "key": "pxi-power-supply-modules-pxie-4113",
+    "label": "PXIe-4113",
+    "category": "PXI Power Supply Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4113.tmj",
+    "imagePath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4113.png"
+  },
+  {
+    "key": "pxi-power-supply-modules-pxie-4150-2",
+    "label": "PXIe-4150 2",
+    "category": "PXI Power Supply Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4150%202.tmj",
+    "imagePath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4150%202.png"
+  },
+  {
+    "key": "pxi-power-supply-modules-pxie-4150",
+    "label": "PXIe-4150",
+    "category": "PXI Power Supply Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4150.tmj",
+    "imagePath": "/module-library/PXI%20Power%20Supply%20Modules/PXIe-4150.png"
+  },
+  {
+    "key": "pxi-reconfigurable-io-modules-pxie-7861",
+    "label": "PXIe-7861",
+    "category": "PXI Reconfigurable IO Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7861.tmj",
+    "imagePath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7861.png"
+  },
+  {
+    "key": "pxi-reconfigurable-io-modules-pxie-7862",
+    "label": "PXIe-7862",
+    "category": "PXI Reconfigurable IO Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7862.tmj",
+    "imagePath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7862.png"
+  },
+  {
+    "key": "pxi-reconfigurable-io-modules-pxie-7865",
+    "label": "PXIe-7865",
+    "category": "PXI Reconfigurable IO Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7865.tmj",
+    "imagePath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7865.png"
+  },
+  {
+    "key": "pxi-reconfigurable-io-modules-pxie-7866",
+    "label": "PXIe-7866",
+    "category": "PXI Reconfigurable IO Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7866.tmj",
+    "imagePath": "/module-library/PXI%20Reconfigurable%20IO%20Modules/PXIe-7866.png"
+  },
+  {
+    "key": "pxi-remote-control-modules-pxie-8301",
+    "label": "PXIe-8301",
+    "category": "PXI Remote Control Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8301.tmj",
+    "imagePath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8301.png"
+  },
+  {
+    "key": "pxi-remote-control-modules-pxie-8394",
+    "label": "PXIe-8394",
+    "category": "PXI Remote Control Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8394.tmj",
+    "imagePath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8394.png"
+  },
+  {
+    "key": "pxi-remote-control-modules-pxie-8398",
+    "label": "PXIe-8398",
+    "category": "PXI Remote Control Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8398.tmj",
+    "imagePath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8398.png"
+  },
+  {
+    "key": "pxi-remote-control-modules-pxie-8399",
+    "label": "PXIe-8399",
+    "category": "PXI Remote Control Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8399.tmj",
+    "imagePath": "/module-library/PXI%20Remote%20Control%20Modules/PXIe-8399.png"
+  },
+  {
+    "key": "pxi-sound-and-vibration-modules-pxie-4463",
+    "label": "PXIe-4463",
+    "category": "PXI Sound and Vibration Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4463.tmj",
+    "imagePath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4463.png"
+  },
+  {
+    "key": "pxi-sound-and-vibration-modules-pxie-4464",
+    "label": "PXIe-4464",
+    "category": "PXI Sound and Vibration Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4464.tmj",
+    "imagePath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4464.png"
+  },
+  {
+    "key": "pxi-sound-and-vibration-modules-pxie-4468",
+    "label": "PXIe-4468",
+    "category": "PXI Sound and Vibration Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4468.tmj",
+    "imagePath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4468.png"
+  },
+  {
+    "key": "pxi-sound-and-vibration-modules-pxie-4480",
+    "label": "PXIe-4480",
+    "category": "PXI Sound and Vibration Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4480.tmj",
+    "imagePath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4480.png"
+  },
+  {
+    "key": "pxi-sound-and-vibration-modules-pxie-4481",
+    "label": "PXIe-4481",
+    "category": "PXI Sound and Vibration Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4481.tmj",
+    "imagePath": "/module-library/PXI%20Sound%20and%20Vibration%20Modules/PXIe-4481.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4135",
+    "label": "PXIe-4135",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4135.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4135.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4136",
+    "label": "PXIe-4136",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4136.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4136.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4137",
+    "label": "PXIe-4137",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4137.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4137.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4139",
+    "label": "PXIe-4139",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4139.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4139.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4142",
+    "label": "PXIe-4142",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4142.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4142.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4147",
+    "label": "PXIe-4147",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4147.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4147.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4162",
+    "label": "PXIe-4162",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4162.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4162.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4163",
+    "label": "PXIe-4163",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4163.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4163.png"
+  },
+  {
+    "key": "pxi-source-measure-unit-modules-pxie-4190",
+    "label": "PXIe-4190",
+    "category": "PXI source Measure Unit Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4190.tmj",
+    "imagePath": "/module-library/PXI%20source%20Measure%20Unit%20Modules/PXIe-4190.png"
+  },
+  {
+    "key": "pxi-strange-bridge-input-modules-pxie-4331",
+    "label": "PXIe-4331",
+    "category": "PXI strange Bridge Input Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20strange%20Bridge%20Input%20Modules/PXIe-4331.tmj",
+    "imagePath": "/module-library/PXI%20strange%20Bridge%20Input%20Modules/PXIe-4331.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2515",
+    "label": "PXIe-2515",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2515.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2515.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2524",
+    "label": "PXIe-2524",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2524.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2524.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2525",
+    "label": "PXIe-2525",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2525.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2525.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2526",
+    "label": "PXIe-2526",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2526.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2526.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2527",
+    "label": "PXIe-2527",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2527.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2527.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2529",
+    "label": "PXIe-2529",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2529.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2529.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2531",
+    "label": "PXIe-2531",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2531.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2531.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2532",
+    "label": "PXIe-2532",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2532.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2532.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2532b",
+    "label": "PXIe-2532B",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2532B.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2532B.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2541",
+    "label": "PXIe-2541",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2541.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2541.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2542",
+    "label": "PXIe-2542",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2542.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2542.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2543",
+    "label": "PXIe-2543",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2543.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2543.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2544",
+    "label": "PXIe-2544",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2544.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2544.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2569",
+    "label": "PXIe-2569",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2569.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2569.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2575",
+    "label": "PXIe-2575",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2575.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2575.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2725",
+    "label": "PXIe-2725",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2725.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2725.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2727",
+    "label": "PXIe-2727",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2727.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2727.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2737",
+    "label": "PXIe-2737",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2737.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2737.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2738",
+    "label": "PXIe-2738",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2738.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2738.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2739",
+    "label": "PXIe-2739",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2739.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2739.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2746",
+    "label": "PXIe-2746",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2746.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2746.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2747",
+    "label": "PXIe-2747",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2747.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2747.png"
+  },
+  {
+    "key": "pxi-switches-pxie-2748",
+    "label": "PXIe-2748",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-2748.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-2748.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5105",
+    "label": "PXIe-5105",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5105.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5105.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5108-4ch-02-original-1",
+    "label": "PXIe-5108_4ch_02.original (1)",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5108_4ch_02.original%20%281%29.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5108_4ch_02.original%20%281%29.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5108-8ch-02-original",
+    "label": "PXIe-5108_8ch_02.original",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5108_8ch_02.original.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5108_8ch_02.original.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5110",
+    "label": "PXIe-5110",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5110.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5110.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5111",
+    "label": "PXIe-5111",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5111.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5111.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5113",
+    "label": "PXIe-5113",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5113.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5113.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5114",
+    "label": "PXIe-5114",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5114.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5114.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5122",
+    "label": "PXIe-5122",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5122.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5122.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5160",
+    "label": "PXIe-5160",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5160.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5160.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5162",
+    "label": "PXIe-5162",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5162.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5162.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5163",
+    "label": "PXIe-5163",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5163.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5163.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5164",
+    "label": "PXIe-5164",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5164.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5164.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5172-4ch",
+    "label": "PXIe-5172 4ch",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5172%204ch.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5172%204ch.png"
+  },
+  {
+    "key": "pxi-switches-pxie-5172-8ch",
+    "label": "PXIe-5172 8ch",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-5172%208ch.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-5172%208ch.png"
+  },
+  {
+    "key": "pxi-switches-pxie-8394",
+    "label": "PXIe-8394",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-8394.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-8394.png"
+  },
+  {
+    "key": "pxi-switches-pxie-8398",
+    "label": "PXIe-8398",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-8398.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-8398.png"
+  },
+  {
+    "key": "pxi-switches-pxie-8399",
+    "label": "PXIe-8399",
+    "category": "PXI Switches",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Switches/PXIe-8399.tmj",
+    "imagePath": "/module-library/PXI%20Switches/PXIe-8399.png"
+  },
+  {
+    "key": "pxi-temperature-input-modules-pxie-4357",
+    "label": "PXIe-4357",
+    "category": "PXI Temperature Input Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Temperature%20Input%20Modules/PXIe-4357.tmj",
+    "imagePath": "/module-library/PXI%20Temperature%20Input%20Modules/PXIe-4357.png"
+  },
+  {
+    "key": "pxi-timing-and-sunchronization-modules-pxie-6674t",
+    "label": "PXIe-6674T",
+    "category": "PXI Timing and Sunchronization modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Timing%20and%20Sunchronization%20modules/PXIe-6674T.tmj",
+    "imagePath": "/module-library/PXI%20Timing%20and%20Sunchronization%20modules/PXIe-6674T.png"
+  },
+  {
+    "key": "pxi-waveform-generator-modules-pxie-5413",
+    "label": "PXIe-5413",
+    "category": "PXI Waveform Generator Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5413.tmj",
+    "imagePath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5413.png"
+  },
+  {
+    "key": "pxi-waveform-generator-modules-pxie-5423",
+    "label": "PXIe-5423",
+    "category": "PXI Waveform Generator Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5423.tmj",
+    "imagePath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5423.png"
+  },
+  {
+    "key": "pxi-waveform-generator-modules-pxie-5433",
+    "label": "PXIe-5433",
+    "category": "PXI Waveform Generator Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5433.tmj",
+    "imagePath": "/module-library/PXI%20Waveform%20Generator%20Modules/PXIe-5433.png"
+  },
+  {
+    "key": "vector-network-analyzer-modules-pxie-5633",
+    "label": "PXIe-5633",
+    "category": "Vector Network Analyzer Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/Vector%20Network%20Analyzer%20Modules/PXIe-5633.tmj",
+    "imagePath": "/module-library/Vector%20Network%20Analyzer%20Modules/PXIe-5633.png"
+  },
+  {
+    "key": "vector-signal-transceiver-modules-pxie-5820",
+    "label": "PXIe-5820",
+    "category": "Vector Signal Transceiver Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5820.tmj",
+    "imagePath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5820.png"
+  },
+  {
+    "key": "vector-signal-transceiver-modules-pxie-5841",
+    "label": "PXIe-5841",
+    "category": "Vector Signal Transceiver Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5841.tmj",
+    "imagePath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5841.png"
+  },
+  {
+    "key": "vector-signal-transceiver-modules-pxie-5860",
+    "label": "PXIe-5860",
+    "category": "Vector Signal Transceiver Modules",
+    "tone": "module",
+    "tmjPath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5860.tmj",
+    "imagePath": "/module-library/Vector%20Signal%20Transceiver%20Modules/PXIe-5860.png"
+  }
+]

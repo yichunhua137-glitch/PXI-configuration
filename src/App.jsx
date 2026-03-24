@@ -1,13 +1,267 @@
-import { Component, useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { supabase, supabaseConfigError } from './lib/supabase'
 import './App.css'
 
-const MODULE_SOURCES = [
+const UI_TEXT = {
+  en: {
+    runtimeError: 'Runtime Error',
+    runtimeTitle: 'The deployed app hit a client-side error.',
+    runtimeBody: 'This is now shown on screen so the problem is visible instead of ending in a blank page.',
+    unknownRuntimeError: 'Unknown runtime error',
+    dashboard: 'Dashboard',
+    pxiConfiguration: 'PXI Configuration',
+    user: 'User',
+    signOut: 'Sign Out',
+    languageToggle: '中文',
+    activeTools: 'Active tools',
+    savedLayouts: 'Saved layouts',
+    workspace: 'Workspace',
+    availableTools: 'Available tools',
+    dashboardTitle: 'All tools in one workspace.',
+    dashboardBody: 'Start from PXI Configuration, reopen saved layouts, and leave room for the next tools that will be added here.',
+    ready: 'Ready',
+    yourSaves: 'Your Saves',
+    pxiBuilderDesc: 'Select a chassis, enter the builder, and create or edit layouts.',
+    savesDesc: 'Open saved chassis layouts, continue editing, or remove old versions.',
+    placeholder: 'Placeholder',
+    otherTool: 'Other Tool',
+    otherToolDesc: 'This space is reserved for the next utility you want to add to the site.',
+    futureModule: 'Future Module',
+    futureModuleDesc: 'Leave this card empty for a later workflow, report page, or engineering helper.',
+    updateLog: 'Update Log',
+    recentChanges: 'Recent changes',
+    userInterface: 'User Interface',
+    accountOverview: 'Account overview for your PXI workspace.',
+    accountOverviewBody: 'This page is reserved for your personal account information and later will hold saved configurations, recent exports, and profile-level settings.',
+    signedInAccount: 'Signed-in account',
+    savedConfigurations: 'Saved configurations',
+    openSavedLayouts: 'Open saved layouts',
+    profile: 'Profile',
+    currentUser: 'Current user',
+    email: 'Email',
+    userId: 'User ID',
+    status: 'Status',
+    emailConfirmed: 'Email Confirmed',
+    awaitingEmailConfirmation: 'Awaiting Email Confirmation',
+    savedLayoutsCount: (count) => `${count} saved layout(s)`,
+    settings: 'Settings',
+    accountSettings: 'Account settings',
+    newPassword: 'New Password',
+    enterNewPassword: 'Enter a new password',
+    confirmPassword: 'Confirm Password',
+    enterNewPasswordAgain: 'Enter the new password again',
+    updating: 'Updating...',
+    changePassword: 'Change Password',
+    yourSavesEyebrow: 'Your Saves',
+    savesTitle: 'Open, edit, or remove saved PXI layouts.',
+    savesBody: 'Choose a saved chassis configuration, reopen it in the builder, or return to PXI Configuration to create a new one.',
+    totalSaves: 'Total saves',
+    savedConfigurationsEyebrow: 'Saved Configurations',
+    yourSavedChassis: 'Your saved chassis',
+    loadingSavedConfigurations: 'Loading saved configurations...',
+    noSavedConfigurations: 'No saved configurations yet.',
+    updatedAt: (value) => `Updated ${value}`,
+    open: 'Open',
+    deleting: 'Deleting...',
+    delete: 'Delete',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    welcomeBack: 'Welcome back',
+    createYourAccount: 'Create your account',
+    accessSaved: 'Use your email to access saved PXI configurations.',
+    registerWithEmail: 'Register with email and password. Email confirmation is enabled.',
+    password: 'Password',
+    processing: 'Processing...',
+    createAccount: 'Create Account',
+    deploymentError: 'Deployment Error',
+    deploymentTitle: 'Supabase environment variables are missing.',
+    deploymentBody: 'Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your deployment platform, then redeploy.',
+    loadingAuthentication: 'Loading authentication...',
+    chooseChassisTitle: 'Choose a chassis and start building.',
+    chooseChassisBody: 'Select a PXI chassis, enter the builder, and save your layout to your account.',
+    availableChassis: 'Available chassis',
+    chassisEyebrow: 'Chassis',
+    chooseAChassis: 'Choose a chassis',
+    search: 'Search',
+    searchChassis: 'Search chassis',
+    imagePlaceholder: 'Image Placeholder',
+    readyBadge: 'Ready',
+    comingBadge: 'Coming',
+    openBuilder: 'Open Builder',
+    waitingForAssets: 'Waiting for assets',
+    noMatchingChassis: 'No matching chassis found.',
+    moduleLibrary: 'Module Library',
+    builderTitle: 'Select modules and place them into the chassis.',
+    builderBody: 'You can click a module, drag it into the chassis, or use the Add button to place it into the next empty slot.',
+    searchModules: 'Search Modules',
+    category: 'Category',
+    browseByCategory: 'Browse by category',
+    allCategories: 'All categories',
+    categories: (count) => `${count} categories`,
+    modulesCount: (count) => `${count} modules`,
+    searchPXIeModules: 'Search PXIe modules',
+    controller: 'Controller',
+    modules: 'Modules',
+    other: 'Other',
+    add: 'Add',
+    placeholderMeta: 'placeholder',
+    selectedMeta: 'selected',
+    availableMeta: 'available',
+    noMatchingModules: 'No matching modules in this section.',
+    chassisCanvas: 'Chassis Canvas',
+    slotPreview: (label) => `${label} slot preview`,
+    slots: (count) => `${count} slots`,
+    dropEnabled: 'drop enabled',
+    dragging: (key) => `dragging ${key}`,
+    exportPng: 'Export PNG',
+    fillFillers: 'Fill Empty Slots',
+    exporting: 'Exporting...',
+    hideAnchors: 'Hide Anchors',
+    showAnchors: 'Show Anchors',
+    configurationName: 'Configuration Name',
+    enterNameForLayout: 'Enter a name for this layout',
+    saving: 'Saving...',
+    updateSave: 'Update Save',
+    saveConfiguration: 'Save Configuration',
+  },
+  zh: {
+    runtimeError: '运行错误',
+    runtimeTitle: '部署后的应用出现了客户端错误。',
+    runtimeBody: '现在会直接把错误显示在页面上，而不是只剩一片白屏。',
+    unknownRuntimeError: '未知运行错误',
+    dashboard: '总览',
+    pxiConfiguration: 'PXI 配置',
+    user: '用户',
+    signOut: '退出登录',
+    languageToggle: 'EN',
+    activeTools: '已启用工具',
+    savedLayouts: '已保存布局',
+    workspace: '工作区',
+    availableTools: '可用工具',
+    dashboardTitle: '所有工具集中在一个工作区。',
+    dashboardBody: '从 PXI Configuration 开始，继续编辑已保存布局，并为后续工具预留位置。',
+    ready: '可用',
+    yourSaves: '我的保存',
+    pxiBuilderDesc: '选择机箱，进入编辑器，并创建或修改布局。',
+    savesDesc: '打开已保存机箱布局，继续编辑，或删除旧版本。',
+    placeholder: '占位',
+    otherTool: '其他工具',
+    otherToolDesc: '这里为你后续要加入的网站工具预留位置。',
+    futureModule: '未来模块',
+    futureModuleDesc: '这里可以留给后续流程、报表页面或工程辅助工具。',
+    updateLog: '更新日志',
+    recentChanges: '最近更新',
+    userInterface: '用户界面',
+    accountOverview: '查看你的 PXI 工作区账户信息。',
+    accountOverviewBody: '这里用于展示你的个人账户信息，后续也会放入已保存配置、导出记录和账户设置。',
+    signedInAccount: '当前登录账户',
+    savedConfigurations: '已保存配置',
+    openSavedLayouts: '打开已保存布局',
+    profile: '个人资料',
+    currentUser: '当前用户',
+    email: '邮箱',
+    userId: '用户 ID',
+    status: '状态',
+    emailConfirmed: '邮箱已验证',
+    awaitingEmailConfirmation: '等待邮箱验证',
+    savedLayoutsCount: (count) => `共保存 ${count} 个布局`,
+    settings: '设置',
+    accountSettings: '账户设置',
+    newPassword: '新密码',
+    enterNewPassword: '输入新密码',
+    confirmPassword: '确认密码',
+    enterNewPasswordAgain: '再次输入新密码',
+    updating: '更新中...',
+    changePassword: '修改密码',
+    yourSavesEyebrow: '我的保存',
+    savesTitle: '打开、编辑或删除已保存的 PXI 布局。',
+    savesBody: '选择一套已保存机箱配置，重新进入 builder 编辑，或者返回 PXI Configuration 新建布局。',
+    totalSaves: '保存总数',
+    savedConfigurationsEyebrow: '已保存配置',
+    yourSavedChassis: '你保存的机箱',
+    loadingSavedConfigurations: '正在加载已保存配置...',
+    noSavedConfigurations: '还没有保存任何配置。',
+    updatedAt: (value) => `更新于 ${value}`,
+    open: '打开',
+    deleting: '删除中...',
+    delete: '删除',
+    signIn: '登录',
+    signUp: '注册',
+    welcomeBack: '欢迎回来',
+    createYourAccount: '创建账户',
+    accessSaved: '使用邮箱访问你已保存的 PXI 配置。',
+    registerWithEmail: '使用邮箱和密码注册，当前已开启邮箱验证。',
+    password: '密码',
+    processing: '处理中...',
+    createAccount: '创建账户',
+    deploymentError: '部署错误',
+    deploymentTitle: '缺少 Supabase 环境变量。',
+    deploymentBody: '请在部署平台中添加 VITE_SUPABASE_URL 和 VITE_SUPABASE_ANON_KEY，然后重新部署。',
+    loadingAuthentication: '正在加载认证状态...',
+    chooseChassisTitle: '选择机箱并开始搭建。',
+    chooseChassisBody: '选择 PXI 机箱，进入 builder，并将布局保存到你的账户。',
+    availableChassis: '可用机箱',
+    chassisEyebrow: '机箱',
+    chooseAChassis: '选择机箱',
+    search: '搜索',
+    searchChassis: '搜索机箱',
+    imagePlaceholder: '图片占位',
+    readyBadge: '就绪',
+    comingBadge: '即将支持',
+    openBuilder: '进入 Builder',
+    waitingForAssets: '等待素材上传',
+    noMatchingChassis: '没有匹配的机箱。',
+    moduleLibrary: '模块库',
+    builderTitle: '选择模块并放入机箱。',
+    builderBody: '你可以点击模块、拖入机箱，或用 Add 按钮自动放到下一个空槽位。',
+    searchModules: '搜索模块',
+    category: '分类',
+    browseByCategory: '按分类浏览',
+    allCategories: '全部分类',
+    categories: (count) => `${count} 个分类`,
+    modulesCount: (count) => `${count} 个模块`,
+    searchPXIeModules: '搜索 PXIe 模块',
+    controller: '控制器',
+    modules: '模块',
+    other: '其他',
+    add: '添加',
+    placeholderMeta: '占位',
+    selectedMeta: '已选中',
+    availableMeta: '可用',
+    noMatchingModules: '这个分类里没有匹配模块。',
+    chassisCanvas: '机箱画布',
+    slotPreview: (label) => `${label} 槽位预览`,
+    slots: (count) => `${count} 个槽位`,
+    dropEnabled: '可拖放',
+    dragging: (key) => `拖拽中 ${key}`,
+    exportPng: '导出 PNG',
+    fillFillers: '一键补齐挡板',
+    exporting: '导出中...',
+    hideAnchors: '隐藏锚点',
+    showAnchors: '显示锚点',
+    configurationName: '配置名称',
+    enterNameForLayout: '输入这个布局的名称',
+    saving: '保存中...',
+    updateSave: '更新保存',
+    saveConfiguration: '保存配置',
+  },
+}
+
+const DEFAULT_MODULE_SOURCES = [
   { key: 'controller-8862', label: 'PXIe-8862', tmjPath: '/test/8862%20controller.tmj', tone: 'controller' },
   { key: 'module-4135', label: 'PXIe-4135', tmjPath: '/test/4135.tmj', tone: 'module' },
   { key: 'module-1487', label: 'PXIe-1487', tmjPath: '/test/1487.tmj', tone: 'module' },
   { key: 'module-5160', label: 'PXIe-5160', tmjPath: '/test/5160.tmj', tone: 'module' },
 ]
+
+const FILLER_MODULE_SOURCE = {
+  key: 'filler-panel',
+  label: 'Filler',
+  tone: 'filler',
+  category: 'Accessories',
+  imagePath: '/module-library/filler.png',
+  hiddenInLibrary: true,
+}
 
 const CHASSIS_SOURCES = [
   {
@@ -100,10 +354,8 @@ class AppErrorBoundary extends Component {
           <section className="auth-panel auth-panel-loading">
             <div className="auth-card">
               <p className="eyebrow">Runtime Error</p>
-              <h2>The deployed app hit a client-side error.</h2>
-              <p className="hero-text">
-                This is now shown on screen so the problem is visible instead of ending in a blank page.
-              </p>
+              <h2>{UI_TEXT.en.runtimeTitle}</h2>
+              <p className="hero-text">{UI_TEXT.en.runtimeBody}</p>
               <div className="auth-message auth-message-error">
                 {this.state.error?.message || 'Unknown runtime error'}
               </div>
@@ -117,12 +369,12 @@ class AppErrorBoundary extends Component {
   }
 }
 
-function getPasswordRules(password) {
+function getPasswordRules(password, lang = 'en') {
   return [
-    { key: 'length', label: 'At least 8 characters', passed: password.length >= 8 },
-    { key: 'upper', label: 'At least 1 uppercase letter', passed: /[A-Z]/.test(password) },
-    { key: 'lower', label: 'At least 1 lowercase letter', passed: /[a-z]/.test(password) },
-    { key: 'number', label: 'At least 1 number', passed: /\d/.test(password) },
+    { key: 'length', label: lang === 'zh' ? '至少 8 个字符' : 'At least 8 characters', passed: password.length >= 8 },
+    { key: 'upper', label: lang === 'zh' ? '至少 1 个大写字母' : 'At least 1 uppercase letter', passed: /[A-Z]/.test(password) },
+    { key: 'lower', label: lang === 'zh' ? '至少 1 个小写字母' : 'At least 1 lowercase letter', passed: /[a-z]/.test(password) },
+    { key: 'number', label: lang === 'zh' ? '至少 1 个数字' : 'At least 1 number', passed: /\d/.test(password) },
   ]
 }
 
@@ -139,9 +391,65 @@ function basename(path) {
   return path.split('/').pop()
 }
 
+function normalizeSectionKey(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section'
+}
+
+function formatModuleLabel(value) {
+  return value
+    .replace(/\.original/gi, '')
+    .replace(/\(\d+\)/g, '')
+    .replace(/_/g, ' ')
+    .replace(/\b(\d+)ch\b/gi, '$1CH')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function buildImageCandidates(filename) {
   const file = basename(filename)
   return [`/test/${encodeURIComponent(file)}`, `/地图原素材/${encodeURIComponent(file)}`]
+}
+
+function createSyntheticImageMap(source, width, height) {
+  return {
+    layers: [
+      {
+        id: 1,
+        name: 'anchors',
+        type: 'objectgroup',
+        visible: true,
+        opacity: 1,
+        x: 0,
+        y: 0,
+        objects: [
+          {
+            id: 1,
+            name: 'anchor_top_right',
+            type: 'anchor',
+            point: true,
+            visible: true,
+            x: Math.max(0, width - 1),
+            y: 0,
+            width: 0,
+            height: 0,
+            rotation: 0,
+          },
+        ],
+      },
+      {
+        id: 2,
+        name: 'image',
+        type: 'imagelayer',
+        visible: true,
+        opacity: 1,
+        x: 0,
+        y: 0,
+        image: basename(source.imagePath),
+        imagewidth: width,
+        imageheight: height,
+      },
+    ],
+  }
 }
 
 function loadImageFromCandidates(candidates) {
@@ -210,7 +518,8 @@ function AssetImage({ candidates, alt, className, style, imageRef }) {
   )
 }
 
-function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
+function GlobalHeading({ currentScreen, user, onNavigate, onSignOut, language, onToggleLanguage }) {
+  const t = UI_TEXT[language]
   return (
     <header className="global-heading">
       <div className="global-brand">
@@ -231,7 +540,7 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
             onNavigate('dashboard')
           }}
         >
-          Dashboard
+          {t.dashboard}
         </button>
         <button
           type="button"
@@ -240,7 +549,7 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
             onNavigate('home')
           }}
         >
-          PXI Configuration
+          {t.pxiConfiguration}
         </button>
         <button
           type="button"
@@ -249,15 +558,18 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
             onNavigate('user')
           }}
         >
-          User
+          {t.user}
         </button>
       </nav>
 
       {user ? (
         <div className="global-account">
+          <button type="button" className="global-language-button" onClick={onToggleLanguage}>
+            {t.languageToggle}
+          </button>
           <span className="global-account-email">{user.email}</span>
           <button type="button" className="global-signout-button" onClick={onSignOut}>
-            Sign Out
+            {t.signOut}
           </button>
         </div>
       ) : null}
@@ -265,26 +577,25 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut }) {
   )
 }
 
-function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves }) {
+function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, language }) {
+  const t = UI_TEXT[language]
   return (
     <div className="app-screen home-shell">
       <section className="home-hero dashboard-hero">
         <div className="home-copy">
-          <p className="eyebrow">Dashboard</p>
-          <h1>All tools in one workspace.</h1>
-          <p className="hero-text">
-            Start from PXI Configuration, reopen saved layouts, and leave room for the next tools that will be added here.
-          </p>
+          <p className="eyebrow">{t.dashboard}</p>
+          <h1>{t.dashboardTitle}</h1>
+          <p className="hero-text">{t.dashboardBody}</p>
         </div>
 
         <div className="home-summary">
           <article className="summary-card">
             <strong>2</strong>
-            <span>Active tools</span>
+            <span>{t.activeTools}</span>
           </article>
           <article className="summary-card">
             <strong>{savedConfigCount}</strong>
-            <span>Saved layouts</span>
+            <span>{t.savedLayouts}</span>
           </article>
         </div>
       </section>
@@ -293,34 +604,50 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves })
         <article className="home-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">Workspace</p>
-              <h2>Available tools</h2>
+              <p className="eyebrow">{t.workspace}</p>
+              <h2>{t.availableTools}</h2>
             </div>
           </div>
 
           <div className="dashboard-tool-grid">
             <button type="button" className="dashboard-tool-card dashboard-tool-card-active" onClick={onOpenConfiguration}>
-              <span className="dashboard-tool-kicker">Ready</span>
-              <strong>PXI Configuration</strong>
-              <p>Select a chassis, enter the builder, and create or edit layouts.</p>
+              <span className="dashboard-tool-kicker">{t.ready}</span>
+              <strong>{t.pxiConfiguration}</strong>
+              <p>{t.pxiBuilderDesc}</p>
             </button>
 
             <button type="button" className="dashboard-tool-card dashboard-tool-card-active" onClick={onOpenSaves}>
-              <span className="dashboard-tool-kicker">Ready</span>
-              <strong>Your Saves</strong>
-              <p>Open saved chassis layouts, continue editing, or remove old versions.</p>
+              <span className="dashboard-tool-kicker">{t.ready}</span>
+              <strong>{t.yourSaves}</strong>
+              <p>{t.savesDesc}</p>
+            </button>
+
+            <button
+              type="button"
+              className="dashboard-tool-card dashboard-tool-card-active"
+              onClick={() => {
+                onOpenConfiguration('anchor-preview')
+              }}
+            >
+              <span className="dashboard-tool-kicker">{t.ready}</span>
+              <strong>{language === 'zh' ? '锚点预览' : 'Anchor Preview'}</strong>
+              <p>
+                {language === 'zh'
+                  ? '在真实网页里查看板卡右上角定位点的效果。'
+                  : 'Inspect the top-right anchor marker on a real module image.'}
+              </p>
             </button>
 
             <article className="dashboard-tool-card dashboard-tool-card-placeholder">
-              <span className="dashboard-tool-kicker">Placeholder</span>
-              <strong>Other Tool</strong>
-              <p>This space is reserved for the next utility you want to add to the site.</p>
+              <span className="dashboard-tool-kicker">{t.placeholder}</span>
+              <strong>{t.otherTool}</strong>
+              <p>{t.otherToolDesc}</p>
             </article>
 
             <article className="dashboard-tool-card dashboard-tool-card-placeholder">
-              <span className="dashboard-tool-kicker">Placeholder</span>
-              <strong>Future Module</strong>
-              <p>Leave this card empty for a later workflow, report page, or engineering helper.</p>
+              <span className="dashboard-tool-kicker">{t.placeholder}</span>
+              <strong>{t.futureModule}</strong>
+              <p>{t.futureModuleDesc}</p>
             </article>
           </div>
         </article>
@@ -328,8 +655,8 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves })
         <article className="home-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">Update Log</p>
-              <h2>Recent changes</h2>
+              <p className="eyebrow">{t.updateLog}</p>
+              <h2>{t.recentChanges}</h2>
             </div>
           </div>
 
@@ -348,7 +675,84 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves })
   )
 }
 
+function AnchorPreviewScreen({ language, onBack }) {
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero preview-hero">
+        <div className="home-copy">
+          <p className="eyebrow">{language === 'zh' ? '锚点预览' : 'Anchor Preview'}</p>
+          <h1>{language === 'zh' ? '在网页里查看右上角定位点。' : 'View the top-right anchor inside the web app.'}</h1>
+          <p className="hero-text">
+            {language === 'zh'
+              ? '这张样例图已经按高度 843px 统一处理，红点圆心直接压在主体区域最右上角。'
+              : 'This sample is normalized to 843px height, and the red marker center sits exactly on the subject top-right corner.'}
+          </p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>843px</strong>
+            <span>{language === 'zh' ? '统一高度' : 'Normalized height'}</span>
+          </article>
+          <article className="summary-card">
+            <strong>TMJ</strong>
+            <span>{language === 'zh' ? '已生成定位点文件' : 'Point exported to Tiled map'}</span>
+          </article>
+          <button type="button" className="summary-card summary-card-button" onClick={onBack}>
+            <strong>{language === 'zh' ? '返回' : 'Back'}</strong>
+            <small>{language === 'zh' ? '回到 Dashboard' : 'Return to Dashboard'}</small>
+          </button>
+        </div>
+      </section>
+
+      <section className="home-grid preview-grid">
+        <article className="home-panel preview-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">{language === 'zh' ? '样例板卡' : 'Sample module'}</p>
+              <h2>PXIe-4135</h2>
+            </div>
+          </div>
+
+          <div className="anchor-preview-stage">
+            <img src="/anchor-preview/PXIe-4135.png" alt="PXIe-4135 anchor preview" className="anchor-preview-image" />
+          </div>
+        </article>
+
+        <article className="home-panel preview-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">{language === 'zh' ? '说明' : 'Notes'}</p>
+              <h2>{language === 'zh' ? '当前预览规则' : 'Current preview rule'}</h2>
+            </div>
+          </div>
+
+          <div className="anchor-preview-notes">
+            <article className="saved-config-card">
+              <strong>{language === 'zh' ? '定位方式' : 'Anchor logic'}</strong>
+              <span>
+                {language === 'zh'
+                  ? '主体边界框最右上角，点的圆心直接压在该坐标上。'
+                  : 'Use the subject bounding box top-right corner, with the dot center placed directly on that point.'}
+              </span>
+            </article>
+            <article className="saved-config-card">
+              <strong>{language === 'zh' ? '来源文件' : 'Source files'}</strong>
+              <span>/anchor-preview/PXIe-4135.png</span>
+            </article>
+            <article className="saved-config-card">
+              <strong>{language === 'zh' ? 'Tiled 文件' : 'Tiled file'}</strong>
+              <span>/anchor-preview/PXIe-4135.tmj</span>
+            </article>
+          </div>
+        </article>
+      </section>
+    </div>
+  )
+}
+
 function UserScreen({
+  language,
   user,
   savedConfigCount,
   isLoadingConfigCount,
@@ -367,29 +771,28 @@ function UserScreen({
   onPasswordSubmit,
   onOpenSaves,
 }) {
+  const t = UI_TEXT[language]
   return (
     <div className="app-screen home-shell">
       <section className="home-hero user-hero">
         <div className="home-copy">
-          <p className="eyebrow">User Interface</p>
-          <h1>Account overview for your PXI workspace.</h1>
-          <p className="hero-text">
-            This page is reserved for your personal account information and later will hold saved configurations, recent exports, and profile-level settings.
-          </p>
+          <p className="eyebrow">{t.userInterface}</p>
+          <h1>{t.accountOverview}</h1>
+          <p className="hero-text">{t.accountOverviewBody}</p>
         </div>
 
         <div className="home-summary">
           <article className="summary-card">
             <strong>{user?.email ?? 'Unknown'}</strong>
-            <span>Signed-in account</span>
+            <span>{t.signedInAccount}</span>
           </article>
           <article className="summary-card">
             <strong>{isLoadingConfigCount ? '...' : savedConfigCount}</strong>
-            <span>Saved configurations</span>
+            <span>{t.savedConfigurations}</span>
           </article>
           <button type="button" className="summary-card summary-card-button" onClick={onOpenSaves}>
-            <strong>Your saves</strong>
-            <small>Open saved layouts</small>
+            <strong>{t.yourSaves}</strong>
+            <small>{t.openSavedLayouts}</small>
           </button>
         </div>
       </section>
@@ -398,27 +801,27 @@ function UserScreen({
         <article className="home-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">Profile</p>
-              <h2>Current user</h2>
+              <p className="eyebrow">{t.profile}</p>
+              <h2>{t.currentUser}</h2>
             </div>
           </div>
 
           <div className="user-card-grid">
             <article className="summary-card">
-              <strong>Email</strong>
+              <strong>{t.email}</strong>
               <span>{user?.email ?? 'Unknown'}</span>
             </article>
             <article className="summary-card">
-              <strong>User ID</strong>
+              <strong>{t.userId}</strong>
               <span className="user-id-text">{user?.id ?? 'Unknown'}</span>
             </article>
             <article className="summary-card">
-              <strong>Status</strong>
-              <span>{user?.email_confirmed_at ? 'Email Confirmed' : 'Awaiting Email Confirmation'}</span>
+              <strong>{t.status}</strong>
+              <span>{user?.email_confirmed_at ? t.emailConfirmed : t.awaitingEmailConfirmation}</span>
             </article>
             <article className="summary-card">
-              <strong>Saved Configurations</strong>
-              <span>{isLoadingConfigCount ? 'Loading...' : `${savedConfigCount} saved layout(s)`}</span>
+              <strong>{t.savedConfigurations}</strong>
+              <span>{isLoadingConfigCount ? 'Loading...' : t.savedLayoutsCount(savedConfigCount)}</span>
             </article>
           </div>
         </article>
@@ -426,14 +829,14 @@ function UserScreen({
         <article className="home-panel">
           <div className="section-title-row">
             <div>
-              <p className="eyebrow">Settings</p>
-              <h2>Account settings</h2>
+              <p className="eyebrow">{t.settings}</p>
+              <h2>{t.accountSettings}</h2>
             </div>
           </div>
 
           <form className="user-settings-form" onSubmit={onPasswordSubmit}>
             <label className="auth-field">
-              <span>New Password</span>
+              <span>{t.newPassword}</span>
               <div className="auth-password-row">
                 <input
                   className="auth-password-input"
@@ -443,7 +846,7 @@ function UserScreen({
                     onNextPasswordChange(event.target.value)
                   }}
                   minLength={8}
-                  placeholder="Enter a new password"
+                  placeholder={t.enterNewPassword}
                   required
                 />
                 <button
@@ -476,7 +879,7 @@ function UserScreen({
             </div>
 
             <label className="auth-field">
-              <span>Confirm Password</span>
+              <span>{t.confirmPassword}</span>
               <div className="auth-password-row">
                 <input
                   className="auth-password-input"
@@ -486,7 +889,7 @@ function UserScreen({
                     onNextConfirmPasswordChange(event.target.value)
                   }}
                   minLength={8}
-                  placeholder="Enter the new password again"
+                  placeholder={t.enterNewPasswordAgain}
                   required
                 />
                 <button
@@ -510,7 +913,7 @@ function UserScreen({
             {passwordMessage ? <div className="auth-message auth-message-success">{passwordMessage}</div> : null}
 
             <button type="submit" className="auth-submit user-settings-submit" disabled={passwordLoading}>
-              {passwordLoading ? 'Updating...' : 'Change Password'}
+              {passwordLoading ? t.updating : t.changePassword}
             </button>
           </form>
         </article>
@@ -520,6 +923,7 @@ function UserScreen({
 }
 
 function SavesScreen({
+  language,
   savedConfigCount,
   savedConfigurations,
   savedConfigsError,
@@ -529,6 +933,7 @@ function SavesScreen({
   onDeleteConfiguration,
   onBackToConfiguration,
 }) {
+  const t = UI_TEXT[language]
   return (
     <div className="app-screen home-shell">
       <section className="home-hero saves-hero">
@@ -540,21 +945,17 @@ function SavesScreen({
               onClick={onBackToConfiguration}
               aria-label="Back to PXI Configuration"
               title="Back to PXI Configuration"
-            >
-              ←
-            </button>
-            <p className="eyebrow">Your Saves</p>
+            />
+            <p className="eyebrow">{t.yourSavesEyebrow}</p>
           </div>
-          <h1>Open, edit, or remove saved PXI layouts.</h1>
-          <p className="hero-text">
-            Choose a saved chassis configuration, reopen it in the builder, or return to PXI Configuration to create a new one.
-          </p>
+          <h1>{t.savesTitle}</h1>
+          <p className="hero-text">{t.savesBody}</p>
         </div>
 
         <div className="home-summary">
           <article className="summary-card">
             <strong>{isLoadingSavedConfigurations ? '...' : savedConfigCount}</strong>
-            <span>Total saves</span>
+            <span>{t.totalSaves}</span>
           </article>
         </div>
       </section>
@@ -567,9 +968,7 @@ function SavesScreen({
             onClick={onBackToConfiguration}
             aria-label="Back to PXI Configuration"
             title="Back to PXI Configuration"
-          >
-            ←
-          </button>
+          />
           <div className="section-title-row">
             <div>
               <button
@@ -578,12 +977,10 @@ function SavesScreen({
                 onClick={onBackToConfiguration}
                 aria-label="Back to PXI Configuration"
                 title="Back to PXI Configuration"
-              >
-                ←
-              </button>
+              />
               <div>
-                <p className="eyebrow">Saved Configurations</p>
-                <h2>Your saved chassis</h2>
+              <p className="eyebrow">{t.savedConfigurationsEyebrow}</p>
+              <h2>{t.yourSavedChassis}</h2>
               </div>
             </div>
           </div>
@@ -592,14 +989,14 @@ function SavesScreen({
 
           <div className="saved-config-list">
             {isLoadingSavedConfigurations ? (
-              <div className="home-empty-state">Loading saved configurations...</div>
+              <div className="home-empty-state">{t.loadingSavedConfigurations}</div>
             ) : savedConfigurations.length ? (
               savedConfigurations.map((configuration) => (
                 <article key={configuration.id} className="saved-config-card">
                   <div>
                     <strong>{configuration.name}</strong>
                     <span>{configuration.chassis_key}</span>
-                    <span>Updated {new Date(configuration.updated_at).toLocaleString()}</span>
+                    <span>{t.updatedAt(new Date(configuration.updated_at).toLocaleString())}</span>
                   </div>
                   <div className="saved-config-actions">
                     <button
@@ -609,7 +1006,7 @@ function SavesScreen({
                         onOpenConfiguration(configuration)
                       }}
                     >
-                      Open
+                      {t.open}
                     </button>
                     <button
                       type="button"
@@ -619,13 +1016,13 @@ function SavesScreen({
                       }}
                       disabled={deletingConfigId === configuration.id}
                     >
-                      {deletingConfigId === configuration.id ? 'Deleting...' : 'Delete'}
+                      {deletingConfigId === configuration.id ? t.deleting : t.delete}
                     </button>
                   </div>
                 </article>
               ))
             ) : (
-              <div className="home-empty-state">No saved configurations yet.</div>
+              <div className="home-empty-state">{t.noSavedConfigurations}</div>
             )}
           </div>
         </article>
@@ -635,6 +1032,8 @@ function SavesScreen({
 }
 
 function AuthScreen({
+  language,
+  onToggleLanguage,
   logoTilt,
   authQuote,
   authMode,
@@ -657,6 +1056,7 @@ function AuthScreen({
   onLogoMove,
   onLogoLeave,
 }) {
+  const t = UI_TEXT[language]
   return (
     <main className="page-shell auth-shell">
       <section className="auth-panel">
@@ -698,6 +1098,11 @@ function AuthScreen({
 
         <div className="auth-card">
           <div className="auth-card-header">
+            <div className="auth-topbar">
+              <button type="button" className="global-language-button auth-language-button" onClick={onToggleLanguage}>
+                {t.languageToggle}
+              </button>
+            </div>
             <div className="auth-mode-switch">
               <button
                 type="button"
@@ -706,7 +1111,7 @@ function AuthScreen({
                   onModeChange('sign-in')
                 }}
               >
-                Sign In
+                {t.signIn}
               </button>
               <button
                 type="button"
@@ -715,21 +1120,21 @@ function AuthScreen({
                   onModeChange('sign-up')
                 }}
               >
-                Sign Up
+                {t.signUp}
               </button>
             </div>
-            <h2>{authMode === 'sign-in' ? 'Welcome back' : 'Create your account'}</h2>
-            <p>{authMode === 'sign-in' ? 'Use your email to access saved PXI configurations.' : 'Register with email and password. Email confirmation is enabled.'}</p>
+            <h2>{authMode === 'sign-in' ? t.welcomeBack : t.createYourAccount}</h2>
+            <p>{authMode === 'sign-in' ? t.accessSaved : t.registerWithEmail}</p>
           </div>
 
           <form className="auth-form" onSubmit={onSubmit}>
             <label className="auth-field">
-              <span>Email</span>
+              <span>{t.email}</span>
               <input type="email" value={email} onChange={(event) => onEmailChange(event.target.value)} required />
             </label>
 
             <label className="auth-field">
-              <span>Password</span>
+              <span>{t.password}</span>
               <div className="auth-password-row">
                 <input
                   className="auth-password-input"
@@ -772,7 +1177,7 @@ function AuthScreen({
 
             {authMode === 'sign-up' ? (
               <label className="auth-field">
-                <span>Confirm Password</span>
+                <span>{t.confirmPassword}</span>
                 <div className="auth-password-row">
                   <input
                     className="auth-password-input"
@@ -804,7 +1209,7 @@ function AuthScreen({
             {authNotice ? <div className="auth-message auth-message-success">{authNotice}</div> : null}
 
             <button type="submit" className="auth-submit" disabled={authLoading}>
-              {authLoading ? 'Processing...' : authMode === 'sign-in' ? 'Sign In' : 'Create Account'}
+              {authLoading ? t.processing : authMode === 'sign-in' ? t.signIn : t.createAccount}
             </button>
           </form>
         </div>
@@ -814,6 +1219,7 @@ function AuthScreen({
 }
 
 function App() {
+  const [language, setLanguage] = useState('en')
   const [logoTilt, setLogoTilt] = useState({ x: 0, y: 0 })
   const [authQuote] = useState(() => AUTH_QUOTES[Math.floor(Math.random() * AUTH_QUOTES.length)])
   const [authReady, setAuthReady] = useState(false)
@@ -851,26 +1257,24 @@ function App() {
     loading: true,
     error: '',
     chassisMaps: {},
-    moduleMaps: [],
+    moduleEntries: [],
   })
   const [draggedModuleKey, setDraggedModuleKey] = useState('')
-  const [selectedModuleKey, setSelectedModuleKey] = useState('controller-8862')
+  const [selectedModuleKey, setSelectedModuleKey] = useState('')
   const [moduleSearchText, setModuleSearchText] = useState('')
+  const [selectedSectionKey, setSelectedSectionKey] = useState('')
   const [placedModules, setPlacedModules] = useState({})
   const [activeSlotId, setActiveSlotId] = useState(null)
   const [hoverSlotId, setHoverSlotId] = useState(null)
   const [contextSlotId, setContextSlotId] = useState(null)
   const [showSlotAnchors, setShowSlotAnchors] = useState(true)
   const [isExportingImage, setIsExportingImage] = useState(false)
-  const [openLibrarySections, setOpenLibrarySections] = useState({
-    controller: false,
-    module: false,
-    other: false,
-  })
+  const [openLibrarySections, setOpenLibrarySections] = useState({})
   const moduleThumbRefs = useRef({})
   const contextTimerRef = useRef(null)
-  const passwordRules = useMemo(() => getPasswordRules(password), [password])
-  const nextPasswordRules = useMemo(() => getPasswordRules(nextPassword), [nextPassword])
+  const passwordRules = useMemo(() => getPasswordRules(password, language), [password, language])
+  const nextPasswordRules = useMemo(() => getPasswordRules(nextPassword, language), [nextPassword, language])
+  const t = UI_TEXT[language]
 
   useEffect(() => {
     if (!supabase) {
@@ -925,10 +1329,54 @@ function App() {
 
     async function loadMaps() {
       try {
-        const responses = await Promise.all([
-          ...CHASSIS_SOURCES.map((source) => fetch(source.tmjPath)),
-          ...MODULE_SOURCES.map((source) => fetch(source.tmjPath)),
-        ])
+        let moduleSources = [...DEFAULT_MODULE_SOURCES, FILLER_MODULE_SOURCE]
+
+        try {
+          const manifestResponse = await fetch('/module-library/manifest.json')
+          if (manifestResponse.ok) {
+            const manifest = await manifestResponse.json()
+            if (Array.isArray(manifest) && manifest.length) {
+              moduleSources = [...manifest, FILLER_MODULE_SOURCE]
+            }
+          }
+        } catch {
+          moduleSources = [...DEFAULT_MODULE_SOURCES, FILLER_MODULE_SOURCE]
+        }
+
+        const chassisResponses = await Promise.all(CHASSIS_SOURCES.map((source) => fetch(source.tmjPath)))
+        const moduleEntries = await Promise.all(
+          moduleSources.map(async (source) => {
+            if (source.tmjPath) {
+              const response = await fetch(source.tmjPath)
+              if (!response.ok) {
+                throw new Error(`Failed to load module map: ${source.label}`)
+              }
+
+              return {
+                source,
+                map: await response.json(),
+              }
+            }
+
+            if (source.imagePath) {
+              const dimensions = await new Promise((resolve, reject) => {
+                const image = new Image()
+                image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight })
+                image.onerror = () => reject(new Error(`Failed to load image: ${source.imagePath}`))
+                image.src = source.imagePath
+              })
+
+              return {
+                source,
+                map: createSyntheticImageMap(source, dimensions.width, dimensions.height),
+              }
+            }
+
+            throw new Error(`Invalid module source: ${source.label}`)
+          }),
+        )
+
+        const responses = [...chassisResponses]
 
         if (responses.some((response) => !response.ok)) {
           throw new Error('Failed to load tmj files')
@@ -938,14 +1386,13 @@ function App() {
         const chassisMaps = Object.fromEntries(
           CHASSIS_SOURCES.map((source, index) => [source.key, loadedMaps[index]]),
         )
-        const moduleMaps = loadedMaps.slice(CHASSIS_SOURCES.length)
 
         if (!cancelled) {
           setDataState({
             loading: false,
             error: '',
             chassisMaps,
-            moduleMaps,
+            moduleEntries,
           })
         }
       } catch (error) {
@@ -954,7 +1401,7 @@ function App() {
             loading: false,
             error: error instanceof Error ? error.message : 'Load failed',
             chassisMaps: {},
-            moduleMaps: [],
+            moduleEntries: [],
           })
         }
       }
@@ -1067,9 +1514,8 @@ function App() {
   }, [dataState.chassisMaps, selectedChassisKey])
 
   const moduleLibrary = useMemo(() => {
-    return dataState.moduleMaps
-      .map((map, index) => {
-        const source = MODULE_SOURCES[index]
+    return dataState.moduleEntries
+      .map(({ source, map }) => {
         const imageLayer = findImageLayer(map)
         const anchor = findObjectPoints(map)[0]
 
@@ -1079,16 +1525,47 @@ function App() {
 
         return {
           key: source.key,
-          label: source.label,
+          label: formatModuleLabel(source.label),
           tone: source.tone,
+          category: source.category ?? (source.tone === 'controller' ? 'PXI Controller' : 'Modules'),
+          hiddenInLibrary: Boolean(source.hiddenInLibrary),
           imageWidth: imageLayer.imagewidth,
           imageHeight: imageLayer.imageheight,
-          imageCandidates: buildImageCandidates(imageLayer.image),
+          imageCandidates: source.imagePath ? [source.imagePath] : buildImageCandidates(imageLayer.image),
           anchor,
         }
       })
       .filter(Boolean)
-  }, [dataState.moduleMaps])
+  }, [dataState.moduleEntries])
+
+  const moduleLookup = useMemo(
+    () => Object.fromEntries(moduleLibrary.map((module) => [module.key, module])),
+    [moduleLibrary],
+  )
+  const visibleModuleCount = useMemo(
+    () => moduleLibrary.filter((module) => !module.hiddenInLibrary).length,
+    [moduleLibrary],
+  )
+
+  const baseModuleWidth = useMemo(() => {
+    const widths = moduleLibrary
+      .filter((module) => module.tone === 'module')
+      .map((module) => module.imageWidth)
+      .sort((a, b) => a - b)
+
+    return widths[0] ?? 1
+  }, [moduleLibrary])
+
+  const moduleSpanLookup = useMemo(
+    () =>
+      Object.fromEntries(
+        moduleLibrary.map((module) => [
+          module.key,
+          module.tone === 'module' ? Math.max(1, Math.round(module.imageWidth / baseModuleWidth)) : 1,
+        ]),
+      ),
+    [baseModuleWidth, moduleLibrary],
+  )
 
   const normalizedSearch = searchText.trim().toLowerCase()
   const normalizedModuleSearch = moduleSearchText.trim().toLowerCase()
@@ -1106,38 +1583,37 @@ function App() {
   }, [normalizedSearch])
 
   const librarySections = useMemo(() => {
-    const controllers = moduleLibrary.filter((module) => module.tone === 'controller')
-    const modules = moduleLibrary.filter((module) => module.tone === 'module')
+    const groupedSections = new Map()
 
-    const sections = [
-      {
-        key: 'controller',
-        label: 'Controller',
-        items: [
-          ...controllers.map((item) => ({ ...item, placeholder: false })),
-          { key: 'controller-placeholder-1', label: 'PXIe-8881', placeholder: true },
-          { key: 'controller-placeholder-2', label: 'PXIe-8840', placeholder: true },
-        ],
-      },
-      {
-        key: 'module',
-        label: 'Modules',
-        items: [
-          ...modules.map((item) => ({ ...item, placeholder: false })),
-          { key: 'module-placeholder-1', label: 'PXIe-6363', placeholder: true },
-          { key: 'module-placeholder-2', label: 'PXIe-6738', placeholder: true },
-          { key: 'module-placeholder-3', label: 'PXIe-4499', placeholder: true },
-        ],
-      },
-      {
-        key: 'other',
-        label: 'Other',
-        items: [
-          { key: 'other-placeholder-1', label: 'Reserved Item A', placeholder: true },
-          { key: 'other-placeholder-2', label: 'Reserved Item B', placeholder: true },
-        ],
-      },
-    ]
+    moduleLibrary.forEach((module) => {
+      if (module.hiddenInLibrary) {
+        return
+      }
+
+      const category = module.category || (module.tone === 'controller' ? 'PXI Controller' : 'Modules')
+      if (!groupedSections.has(category)) {
+        groupedSections.set(category, [])
+      }
+      groupedSections.get(category).push({ ...module, placeholder: false })
+    })
+
+    const sections = [...groupedSections.entries()]
+      .sort((a, b) => {
+        const aIsController = a[1][0]?.tone === 'controller'
+        const bIsController = b[1][0]?.tone === 'controller'
+        if (aIsController && !bIsController) {
+          return -1
+        }
+        if (!aIsController && bIsController) {
+          return 1
+        }
+        return a[0].localeCompare(b[0])
+      })
+      .map(([label, items]) => ({
+        key: normalizeSectionKey(label),
+        label,
+        items: items.sort((a, b) => a.label.localeCompare(b.label)),
+      }))
 
     return sections.map((section) => {
       const visibleItems = normalizedModuleSearch
@@ -1153,6 +1629,263 @@ function App() {
       }
     })
   }, [moduleLibrary, normalizedModuleSearch])
+
+  useEffect(() => {
+    if (!librarySections.length) {
+      setSelectedSectionKey('')
+      setOpenLibrarySections({})
+      return
+    }
+
+    if (normalizedModuleSearch) {
+      setOpenLibrarySections((current) => {
+        const nextState = Object.fromEntries(
+          librarySections.map((section) => [section.key, section.visibleCount > 0]),
+        )
+        const isSame =
+          Object.keys(nextState).length === Object.keys(current).length &&
+          Object.entries(nextState).every(([key, value]) => current[key] === value)
+
+        return isSame ? current : nextState
+      })
+      return
+    }
+
+    const hasSelectedSection = librarySections.some((section) => section.key === selectedSectionKey)
+    const nextSectionKey = hasSelectedSection ? selectedSectionKey : librarySections[0].key
+
+    if (nextSectionKey !== selectedSectionKey) {
+      setSelectedSectionKey(nextSectionKey)
+    }
+
+    setOpenLibrarySections((current) => {
+      const nextState = Object.fromEntries(librarySections.map((section) => [section.key, section.key === nextSectionKey]))
+      const isSame =
+        Object.keys(nextState).length === Object.keys(current).length &&
+        Object.entries(nextState).every(([key, value]) => current[key] === value)
+
+      return isSame ? current : nextState
+    })
+  }, [librarySections, normalizedModuleSearch, selectedSectionKey])
+
+  useEffect(() => {
+    if (!moduleLibrary.length) {
+      setSelectedModuleKey('')
+      return
+    }
+
+    if (!moduleLibrary.some((item) => item.key === selectedModuleKey)) {
+      setSelectedModuleKey(moduleLibrary.find((item) => item.tone === 'controller')?.key ?? moduleLibrary[0].key)
+    }
+  }, [moduleLibrary, selectedModuleKey])
+
+  const visibleLibrarySections = useMemo(() => {
+    if (normalizedModuleSearch) {
+      return librarySections.filter((section) => section.visibleCount > 0)
+    }
+
+    if (!selectedSectionKey) {
+      return librarySections
+    }
+
+    return librarySections.filter((section) => section.key === selectedSectionKey)
+  }, [librarySections, normalizedModuleSearch, selectedSectionKey])
+
+  const matchingModules = useMemo(
+    () =>
+      visibleLibrarySections.flatMap((section) =>
+        section.visibleItems
+          .filter((item) => !item.placeholder)
+          .map((item) => ({
+            ...item,
+            sectionKey: section.key,
+            sectionLabel: section.label,
+          })),
+      ),
+    [visibleLibrarySections],
+  )
+
+  const firstSlotId = chassisModel?.slots?.[0]?.id ?? null
+  const firstSlotModule = firstSlotId ? moduleLookup[placedModules[firstSlotId]] ?? null : null
+  const hasLockedController = firstSlotModule?.tone === 'controller'
+  const fillerModuleKey = moduleLibrary.find((module) => module.tone === 'filler')?.key ?? ''
+  const fillerModule = fillerModuleKey ? moduleLookup[fillerModuleKey] ?? null : null
+
+  const placedModuleList = useMemo(() => {
+    if (!chassisModel) {
+      return []
+    }
+
+    return chassisModel.slots
+      .map((slot) => {
+        const moduleKey = placedModules[slot.id]
+        const module = moduleLookup[moduleKey]
+        if (!module) {
+          return null
+        }
+
+        return {
+          slotId: slot.id,
+          slotIndex: slot.index,
+          label: module.label,
+          tone: module.tone,
+          span: moduleSpanLookup[moduleKey] ?? 1,
+        }
+      })
+      .filter(Boolean)
+  }, [chassisModel, moduleLookup, moduleSpanLookup, placedModules])
+
+  const normalizePlacedModules = useCallback(
+    (layout) => {
+      if (!chassisModel?.slots?.length) {
+        return layout
+      }
+
+      const sortedSlots = chassisModel.slots
+      const firstSlot = sortedSlots[0]
+      const nextLayout = {}
+      const slotEntries = sortedSlots
+        .map((slot) => ({ slot, moduleKey: layout[slot.id], module: moduleLookup[layout[slot.id]] }))
+        .filter((entry) => entry.module)
+
+      const controllerEntry =
+        slotEntries.find((entry) => entry.slot.id === firstSlot.id && entry.module.tone === 'controller') ??
+        slotEntries.find((entry) => entry.module.tone === 'controller') ??
+        null
+
+      if (controllerEntry) {
+        nextLayout[firstSlot.id] = controllerEntry.moduleKey
+      }
+
+      const moduleKeys = slotEntries
+        .filter((entry) => entry.module.tone !== 'controller')
+        .sort((a, b) => a.slot.index - b.slot.index)
+        .map((entry) => entry.moduleKey)
+
+      let slotPointer = 1
+      moduleKeys.forEach((moduleKey) => {
+        const span = moduleSpanLookup[moduleKey] ?? 1
+        const leadSlot = sortedSlots[slotPointer]
+
+        if (!leadSlot) {
+          return
+        }
+
+        nextLayout[leadSlot.id] = moduleKey
+        slotPointer += span
+      })
+
+      return nextLayout
+    },
+    [chassisModel, moduleLookup, moduleSpanLookup],
+  )
+
+  const stripFillerModules = useCallback(
+    (layout) =>
+      Object.fromEntries(
+        Object.entries(layout).filter(([, moduleKey]) => moduleLookup[moduleKey]?.tone !== 'filler'),
+      ),
+    [moduleLookup],
+  )
+
+  useEffect(() => {
+    if (!chassisModel || !moduleLibrary.length || !Object.keys(placedModules).length) {
+      return
+    }
+
+    const normalized = normalizePlacedModules(placedModules)
+    const changed =
+      Object.keys(normalized).length !== Object.keys(placedModules).length ||
+      Object.entries(normalized).some(([slotId, moduleKey]) => placedModules[slotId] !== moduleKey)
+
+    if (changed) {
+      setPlacedModules(normalized)
+    }
+  }, [chassisModel, moduleLibrary, normalizePlacedModules, placedModules])
+
+  const occupiedSlotMap = useMemo(() => {
+    if (!chassisModel) {
+      return {}
+    }
+
+    const occupied = {}
+
+    chassisModel.slots.forEach((slot) => {
+      const moduleKey = placedModules[slot.id]
+      const span = moduleSpanLookup[moduleKey] ?? 1
+      if (!moduleKey) {
+        return
+      }
+
+      for (let offset = 0; offset < span; offset += 1) {
+        const coveredSlot = chassisModel.slots[slot.index - 1 + offset]
+        if (coveredSlot) {
+          occupied[coveredSlot.id] = {
+            moduleKey,
+            leadSlotId: slot.id,
+            lead: offset === 0,
+          }
+        }
+      }
+    })
+
+    return occupied
+  }, [chassisModel, moduleSpanLookup, placedModules])
+
+  const emptyModuleSlotCount = useMemo(() => {
+    if (!chassisModel || !hasLockedController) {
+      return 0
+    }
+
+    return chassisModel.slots.slice(1).filter((slot) => !occupiedSlotMap[slot.id]).length
+  }, [chassisModel, hasLockedController, occupiedSlotMap])
+
+  const getAnchorSlotForModule = useCallback(
+    (leadSlotId, moduleKey) => {
+      if (!chassisModel) {
+        return null
+      }
+
+      const leadSlot = chassisModel.slots.find((candidate) => candidate.id === Number(leadSlotId))
+      if (!leadSlot) {
+        return null
+      }
+
+      const span = moduleSpanLookup[moduleKey] ?? 1
+      return chassisModel.slots[leadSlot.index - 1 + (span - 1)] ?? leadSlot
+    },
+    [chassisModel, moduleSpanLookup],
+  )
+
+  function findNextAvailableSlotForModule(moduleKey) {
+    if (!chassisModel) {
+      return null
+    }
+
+    const module = moduleLookup[moduleKey]
+    if (!module) {
+      return null
+    }
+
+    if (module.tone === 'controller') {
+      return chassisModel.slots[0] ?? null
+    }
+
+    if (!hasLockedController) {
+      return null
+    }
+
+    const span = moduleSpanLookup[moduleKey] ?? 1
+    const candidates = chassisModel.slots.slice(1)
+
+    return (
+      candidates.find((slot) => {
+        const startIndex = slot.index - 1
+        const coveredSlots = chassisModel.slots.slice(startIndex, startIndex + span)
+        return coveredSlots.length === span && coveredSlots.every((coveredSlot) => !occupiedSlotMap[coveredSlot.id])
+      }) ?? null
+    )
+  }
 
   const previewLayout = useMemo(() => {
     if (!chassisModel) {
@@ -1186,13 +1919,14 @@ function App() {
     return Object.entries(placedModules)
       .map(([slotId, moduleKey]) => {
         const slot = chassisModel.slots.find((candidate) => candidate.id === Number(slotId))
+        const anchorSlot = getAnchorSlotForModule(slotId, moduleKey)
         const module = moduleLibrary.find((candidate) => candidate.key === moduleKey)
 
-        if (!slot || !module) {
+        if (!slot || !anchorSlot || !module) {
           return null
         }
 
-        const centerDistance = Math.abs(slot.x - chassisCenterX)
+        const centerDistance = Math.abs(anchorSlot.x - chassisCenterX)
 
         return {
           slotId: slot.id,
@@ -1204,15 +1938,15 @@ function App() {
           style: {
             width: `${(module.imageWidth / chassisModel.width) * 100}%`,
             height: `${(module.imageHeight / chassisModel.height) * 100}%`,
-            left: `${((slot.x - module.anchor.x) / chassisModel.width) * 100}%`,
-            top: `${((slot.y - module.anchor.y) / chassisModel.height) * 100}%`,
+            left: `${((anchorSlot.x - module.anchor.x) / chassisModel.width) * 100}%`,
+            top: `${((anchorSlot.y - module.anchor.y) / chassisModel.height) * 100}%`,
             zIndex: 2 + Math.round(centerDistance),
           },
         }
       })
       .filter(Boolean)
       .sort((a, b) => a.style.zIndex - b.style.zIndex)
-  }, [chassisModel, moduleLibrary, placedModules])
+  }, [chassisModel, getAnchorSlotForModule, moduleLibrary, placedModules])
 
   const hoverPreview = useMemo(() => {
     if (!chassisModel || !hoverSlotId || !draggedModuleKey) {
@@ -1220,13 +1954,14 @@ function App() {
     }
 
     const slot = chassisModel.slots.find((candidate) => candidate.id === hoverSlotId)
+    const anchorSlot = getAnchorSlotForModule(hoverSlotId, draggedModuleKey)
     const module = moduleLibrary.find((candidate) => candidate.key === draggedModuleKey)
 
-    if (!slot || !module) {
+    if (!slot || !anchorSlot || !module) {
       return null
     }
 
-    const centerDistance = Math.abs(slot.x - chassisModel.width / 2)
+    const centerDistance = Math.abs(anchorSlot.x - chassisModel.width / 2)
 
     return {
       label: module.label,
@@ -1234,12 +1969,12 @@ function App() {
       style: {
         width: `${(module.imageWidth / chassisModel.width) * 100}%`,
         height: `${(module.imageHeight / chassisModel.height) * 100}%`,
-        left: `${((slot.x - module.anchor.x) / chassisModel.width) * 100}%`,
-        top: `${((slot.y - module.anchor.y) / chassisModel.height) * 100}%`,
+        left: `${((anchorSlot.x - module.anchor.x) / chassisModel.width) * 100}%`,
+        top: `${((anchorSlot.y - module.anchor.y) / chassisModel.height) * 100}%`,
         zIndex: 2 + Math.round(centerDistance),
       },
     }
-  }, [chassisModel, draggedModuleKey, hoverSlotId, moduleLibrary])
+  }, [chassisModel, draggedModuleKey, getAnchorSlotForModule, hoverSlotId, moduleLibrary])
 
   const selectedChassis =
     CHASSIS_OPTIONS.find((option) => option.key === selectedChassisKey) ?? CHASSIS_OPTIONS[0]
@@ -1404,6 +2139,16 @@ function App() {
       return
     }
 
+    if (!hasLockedController) {
+      setSaveError(
+        language === 'zh'
+          ? '请先在第 1 槽放入且只放入一个 controller，再保存配置。'
+          : 'Place exactly one controller in Slot 1 before saving this configuration.',
+      )
+      setSaveMessage('')
+      return
+    }
+
     const trimmedName = configurationName.trim()
 
     if (!trimmedName) {
@@ -1503,11 +2248,33 @@ function App() {
   }
 
   function placeModuleAtSlot(slotId, moduleKey) {
-    setPlacedModules((current) => ({
-      ...current,
-      [slotId]: moduleKey,
-    }))
-    setActiveSlotId(slotId)
+    const module = moduleLookup[moduleKey]
+    const firstSlot = chassisModel?.slots?.[0]
+
+    if (!module || !firstSlot) {
+      return
+    }
+
+    setPlacedModules((current) => {
+      const baseLayout = module.tone === 'filler' ? current : stripFillerModules(current)
+
+      if (module.tone === 'controller') {
+        return normalizePlacedModules({
+          ...baseLayout,
+          [firstSlot.id]: moduleKey,
+        })
+      }
+
+      if (!hasLockedController || slotId === firstSlot.id) {
+        return baseLayout
+      }
+
+      return normalizePlacedModules({
+        ...baseLayout,
+        [slotId]: moduleKey,
+      })
+    })
+    setActiveSlotId(module.tone === 'controller' ? firstSlot.id : slotId)
     setContextSlotId(null)
   }
 
@@ -1515,32 +2282,96 @@ function App() {
     setPlacedModules((current) => {
       const next = { ...current }
       delete next[slotId]
-      return next
+      return normalizePlacedModules(next)
     })
     setActiveSlotId((current) => (current === slotId ? null : current))
     setContextSlotId((current) => (current === slotId ? null : current))
   }
 
-  function findNextEmptySlot() {
-    if (!chassisModel) {
-      return null
-    }
-
-    return chassisModel.slots.find((slot) => !placedModules[slot.id]) ?? null
-  }
-
-  function handleAddFromSection(section) {
+  function getAddTargetForSection(section) {
     const availableItems = (section.visibleItems ?? section.items).filter((item) => !item.placeholder)
     const targetItem =
       availableItems.find((item) => item.key === selectedModuleKey) ?? availableItems[0] ?? null
-    const nextEmptySlot = findNextEmptySlot()
+
+    if (!targetItem) {
+      return { item: null, slot: null }
+    }
+
+    if (targetItem.tone !== 'controller' && !hasLockedController) {
+      return { item: targetItem, slot: null }
+    }
+
+    return {
+      item: targetItem,
+      slot: findNextAvailableSlotForModule(targetItem.key),
+    }
+  }
+
+  function handleAddFromSection(section) {
+    const { item: targetItem, slot: nextEmptySlot } = getAddTargetForSection(section)
 
     if (!targetItem || !nextEmptySlot) {
       return
     }
 
+    if (targetItem.tone !== 'controller' && !hasLockedController) {
+      return
+    }
+
     setSelectedModuleKey(targetItem.key)
     placeModuleAtSlot(nextEmptySlot.id, targetItem.key)
+  }
+
+  function handleAddModule(moduleKey) {
+    const module = moduleLookup[moduleKey]
+    const targetSlot = findNextAvailableSlotForModule(moduleKey)
+
+    if (!module || !targetSlot) {
+      return
+    }
+
+    if (module.tone !== 'controller' && !hasLockedController) {
+      return
+    }
+
+    setSelectedModuleKey(moduleKey)
+    placeModuleAtSlot(targetSlot.id, moduleKey)
+  }
+
+  function handleFillAllFillers() {
+    if (!chassisModel || !fillerModule || !hasLockedController) {
+      return
+    }
+
+    setPlacedModules((current) => {
+      const baseLayout = normalizePlacedModules(stripFillerModules(current))
+      const next = { ...baseLayout }
+      const occupied = new Set()
+
+      chassisModel.slots.forEach((slot) => {
+        const moduleKey = next[slot.id]
+        if (!moduleKey) {
+          return
+        }
+
+        const span = moduleSpanLookup[moduleKey] ?? 1
+        for (let offset = 0; offset < span; offset += 1) {
+          const coveredSlot = chassisModel.slots[slot.index - 1 + offset]
+          if (coveredSlot) {
+            occupied.add(coveredSlot.id)
+          }
+        }
+      })
+
+      chassisModel.slots.slice(1).forEach((slot) => {
+        if (!occupied.has(slot.id)) {
+          next[slot.id] = fillerModule.key
+          occupied.add(slot.id)
+        }
+      })
+
+      return next
+    })
   }
 
   function findNearestSlot(clientX, clientY, container) {
@@ -1572,16 +2403,34 @@ function App() {
 
     const moduleKey = event.dataTransfer.getData('text/module-key') || selectedModuleKey
     const sourceSlotId = event.dataTransfer.getData('text/source-slot-id')
-    if (!moduleKey) {
+    const module = moduleLookup[moduleKey]
+    if (!moduleKey || !module) {
       return
     }
 
     const nearestSlot = findNearestSlot(event.clientX, event.clientY, event.currentTarget)
 
     if (nearestSlot?.slot) {
-      placeModuleAtSlot(nearestSlot.slot.id, moduleKey)
-      if (sourceSlotId && Number(sourceSlotId) !== nearestSlot.slot.id) {
-        removeModuleAtSlot(Number(sourceSlotId))
+      const targetSlotId =
+        module.tone === 'controller' ? firstSlotId : findNextAvailableSlotForModule(moduleKey)?.id ?? null
+
+      if ((module.tone !== 'controller' && !hasLockedController) || targetSlotId == null) {
+        setDraggedModuleKey('')
+        setHoverSlotId(null)
+        setContextSlotId(null)
+        return
+      }
+
+      if (sourceSlotId) {
+        setPlacedModules((current) => {
+          const next = { ...current }
+          delete next[Number(sourceSlotId)]
+          next[targetSlotId] = moduleKey
+          return normalizePlacedModules(next)
+        })
+        setActiveSlotId(targetSlotId)
+      } else {
+        placeModuleAtSlot(targetSlotId, moduleKey)
       }
     }
 
@@ -1618,17 +2467,18 @@ function App() {
 
       for (const moduleView of placedModuleViews) {
         const slot = chassisModel.slots.find((candidate) => candidate.id === moduleView.slotId)
+        const anchorSlot = getAnchorSlotForModule(moduleView.slotId, moduleView.moduleKey)
         const module = moduleLibrary.find((candidate) => candidate.key === moduleView.moduleKey)
 
-        if (!slot || !module) {
+        if (!slot || !anchorSlot || !module) {
           continue
         }
 
         const moduleImage = await loadImageFromCandidates(module.imageCandidates)
         context.drawImage(
           moduleImage,
-          slot.x - module.anchor.x,
-          slot.y - module.anchor.y,
+          anchorSlot.x - module.anchor.x,
+          anchorSlot.y - module.anchor.y,
           module.imageWidth,
           module.imageHeight,
         )
@@ -1664,10 +2514,10 @@ function App() {
       <main className="page-shell auth-shell">
         <section className="auth-panel auth-panel-loading">
           <div className="auth-card">
-            <p className="eyebrow">Deployment Error</p>
-            <h2>Supabase environment variables are missing.</h2>
+            <p className="eyebrow">{t.deploymentError}</p>
+            <h2>{t.deploymentTitle}</h2>
             <p className="hero-text">
-              Add <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in your deployment platform, then redeploy.
+              {t.deploymentBody}
             </p>
             <div className="auth-message auth-message-error">{supabaseConfigError}</div>
           </div>
@@ -1681,7 +2531,7 @@ function App() {
       <main className="page-shell auth-shell">
         <section className="auth-panel auth-panel-loading">
           <div className="auth-card">
-            <h2>Loading authentication...</h2>
+            <h2>{t.loadingAuthentication}</h2>
           </div>
         </section>
       </main>
@@ -1691,6 +2541,10 @@ function App() {
   if (!user) {
     return (
       <AuthScreen
+        language={language}
+        onToggleLanguage={() => {
+          setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+        }}
         logoTilt={logoTilt}
         authQuote={authQuote}
         authMode={authMode}
@@ -1733,8 +2587,18 @@ function App() {
   if (currentScreen === 'user') {
     return (
       <main className="page-shell home-shell">
-        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <GlobalHeading
+          currentScreen={currentScreen}
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
         <UserScreen
+          language={language}
           user={user}
           savedConfigCount={savedConfigCount}
           isLoadingConfigCount={isLoadingSavedConfigurations}
@@ -1766,11 +2630,21 @@ function App() {
   if (currentScreen === 'dashboard') {
     return (
       <main className="page-shell home-shell">
-        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <GlobalHeading
+          currentScreen={currentScreen}
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
         <DashboardScreen
+          language={language}
           savedConfigCount={savedConfigCount}
-          onOpenConfiguration={() => {
-            setCurrentScreen('home')
+          onOpenConfiguration={(targetScreen = 'home') => {
+            setCurrentScreen(targetScreen)
           }}
           onOpenSaves={() => {
             setCurrentScreen('saves')
@@ -1780,11 +2654,44 @@ function App() {
     )
   }
 
+  if (currentScreen === 'anchor-preview') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading
+          currentScreen="dashboard"
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
+        <AnchorPreviewScreen
+          language={language}
+          onBack={() => {
+            setCurrentScreen('dashboard')
+          }}
+        />
+      </main>
+    )
+  }
+
   if (currentScreen === 'saves') {
     return (
       <main className="page-shell home-shell">
-        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <GlobalHeading
+          currentScreen={currentScreen}
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
         <SavesScreen
+          language={language}
           savedConfigCount={savedConfigCount}
           savedConfigurations={savedConfigurations}
           savedConfigsError={savedConfigsError}
@@ -1803,20 +2710,27 @@ function App() {
   if (currentScreen === 'home') {
     return (
       <main className="page-shell home-shell">
-        <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+        <GlobalHeading
+          currentScreen={currentScreen}
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
 
         <section className="home-hero">
           <div className="home-copy">
-            <h1>Choose a chassis and start building.</h1>
-            <p className="hero-text">
-              Select a PXI chassis, enter the builder, and save your layout to your account.
-            </p>
+            <h1>{t.chooseChassisTitle}</h1>
+            <p className="hero-text">{t.chooseChassisBody}</p>
           </div>
 
           <div className="home-summary">
             <article className="summary-card">
               <strong>{CHASSIS_OPTIONS.filter((item) => item.status === 'available').length}</strong>
-              <span>Available chassis</span>
+              <span>{t.availableChassis}</span>
             </article>
             <button
               type="button"
@@ -1826,8 +2740,8 @@ function App() {
               }}
             >
               <strong>{savedConfigCount}</strong>
-              <span>Your saves</span>
-              <small>Open saved layouts</small>
+              <span>{t.yourSaves}</span>
+              <small>{t.openSavedLayouts}</small>
             </button>
           </div>
         </section>
@@ -1836,15 +2750,15 @@ function App() {
           <article className="home-panel">
             <div className="section-title-row">
               <div>
-                <p className="eyebrow">Chassis</p>
-                <h2>Choose a chassis</h2>
+                <p className="eyebrow">{t.chassisEyebrow}</p>
+                <h2>{t.chooseAChassis}</h2>
               </div>
               <label className="home-search">
-                <span className="home-search-label">Search</span>
+                <span className="home-search-label">{t.search}</span>
                 <input
                   type="search"
                   className="home-search-input"
-                  placeholder="Search chassis"
+                  placeholder={t.searchChassis}
                   value={searchText}
                   onChange={(event) => {
                     setSearchText(event.target.value)
@@ -1878,7 +2792,7 @@ function App() {
                         />
                       ) : (
                         <div className="chassis-placeholder-visual">
-                          <span>Image Placeholder</span>
+                          <span>{t.imagePlaceholder}</span>
                         </div>
                       )}
                     </div>
@@ -1886,12 +2800,9 @@ function App() {
                     <div className="chassis-option-top">
                       <strong>{option.label}</strong>
                       <span className={`option-badge ${isAvailable ? 'option-badge-live' : ''}`}>
-                        {isAvailable ? 'Ready' : 'Coming'}
+                        {isAvailable ? t.readyBadge : t.comingBadge}
                       </span>
                     </div>
-
-                    <p>{option.note}</p>
-
                     <div className="chassis-option-actions">
                       {isAvailable ? (
                         <button
@@ -1907,10 +2818,10 @@ function App() {
                             setCurrentScreen('builder')
                           }}
                         >
-                          Open Builder
+                          {t.openBuilder}
                         </button>
                       ) : (
-                        <span className="chassis-waiting-text">Waiting for assets</span>
+                        <span className="chassis-waiting-text">{t.waitingForAssets}</span>
                       )}
                     </div>
                   </button>
@@ -1919,7 +2830,7 @@ function App() {
             </div>
 
             {!filteredChassisOptions.length ? (
-              <div className="home-empty-state">No matching chassis found.</div>
+              <div className="home-empty-state">{t.noMatchingChassis}</div>
             ) : null}
           </article>
         </section>
@@ -1929,7 +2840,16 @@ function App() {
 
   return (
     <main className="page-shell builder-shell">
-      <GlobalHeading currentScreen={currentScreen} user={user} onNavigate={setCurrentScreen} onSignOut={handleSignOut} />
+      <GlobalHeading
+        currentScreen={currentScreen}
+        user={user}
+        onNavigate={setCurrentScreen}
+        onSignOut={handleSignOut}
+        language={language}
+        onToggleLanguage={() => {
+          setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+        }}
+      />
 
       <section className="builder-layout">
         <aside className="module-sidebar">
@@ -1943,26 +2863,22 @@ function App() {
                 }}
                 aria-label="Back to Home"
                 title="Back to Home"
-              >
-                ←
-              </button>
-              <p className="eyebrow">Module Library</p>
+              />
+              <p className="eyebrow">{t.moduleLibrary}</p>
             </div>
-            <h1>Select modules and place them into the chassis.</h1>
-            <p className="hero-text">
-              You can click a module, drag it into the chassis, or use the Add button to place it into the next empty slot.
-            </p>
+            <h1>{t.builderTitle}</h1>
+            <p className="hero-text">{t.builderBody}</p>
             <div className="builder-nav">
               <span className="builder-nav-label">{selectedChassis.label}</span>
             </div>
           </div>
 
           <label className="module-search">
-            <span className="home-search-label">Search Modules</span>
+            <span className="home-search-label">{t.searchModules}</span>
             <input
               type="search"
               className="home-search-input module-search-input"
-              placeholder="Search PXIe modules"
+              placeholder={t.searchPXIeModules}
               value={moduleSearchText}
               onChange={(event) => {
                 setModuleSearchText(event.target.value)
@@ -1970,9 +2886,148 @@ function App() {
             />
           </label>
 
+          <div className="module-library-toolbar">
+            <label className="module-category-select">
+              <span className="home-search-label">{t.category}</span>
+              <select
+                className="home-search-input module-category-input"
+                value={selectedSectionKey}
+                onChange={(event) => {
+                  const nextKey = event.target.value
+                  setSelectedSectionKey(nextKey)
+                  setOpenLibrarySections(
+                    Object.fromEntries(librarySections.map((section) => [section.key, section.key === nextKey])),
+                  )
+                }}
+              >
+                {librarySections.map((section) => (
+                  <option key={section.key} value={section.key}>
+                    {section.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="module-library-stats">
+              <span>{t.categories(librarySections.length)}</span>
+              <span>{t.modulesCount(visibleModuleCount)}</span>
+            </div>
+          </div>
+
+          {!hasLockedController ? (
+            <div className="builder-rule-banner">
+              {language === 'zh'
+                ? '请先在第 1 槽放入且只放入一个 controller，之后才能继续添加其它板卡。'
+                : 'Place exactly one controller in Slot 1 before adding any other modules.'}
+            </div>
+          ) : null}
+
           <div className="module-list">
-            {librarySections.map((section) => (
+            {normalizedModuleSearch ? (
+              <section className="library-section library-search-results">
+                <div className="library-section-header library-search-results-header">
+                  <div className="library-search-summary">
+                    <strong>{language === 'zh' ? '搜索结果' : 'Search results'}</strong>
+                    <span>
+                      {language === 'zh'
+                        ? `共匹配 ${matchingModules.length} 个模块`
+                        : `${matchingModules.length} matching module(s)`}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="library-section-items library-search-items">
+                  {matchingModules.length ? matchingModules.map((item) => {
+                    const isSelected = selectedModuleKey === item.key
+                    const isLocked = !hasLockedController && item.tone !== 'controller'
+                    const addTargetSlot = findNextAvailableSlotForModule(item.key)
+
+                    return (
+                      <div
+                        key={`${item.sectionKey}-${item.key}`}
+                        className={`library-search-row ${isSelected ? 'library-search-row-selected' : ''}`}
+                      >
+                        <button
+                          type="button"
+                          className="library-item library-item-search"
+                          draggable={!isLocked}
+                          onClick={() => {
+                            if (!isLocked) {
+                              setSelectedModuleKey(item.key)
+                            }
+                          }}
+                          onDragStart={(event) => {
+                            if (isLocked) {
+                              event.preventDefault()
+                              return
+                            }
+
+                            event.dataTransfer.setData('text/module-key', item.key)
+                            const dragImage = moduleThumbRefs.current[item.key]
+                            if (dragImage) {
+                              event.dataTransfer.setDragImage(
+                                dragImage,
+                                dragImage.width / 2,
+                                Math.min(dragImage.height / 3, 40),
+                              )
+                            }
+                            setDraggedModuleKey(item.key)
+                            setSelectedModuleKey(item.key)
+                          }}
+                          onDragEnd={() => {
+                            setDraggedModuleKey('')
+                            setHoverSlotId(null)
+                          }}
+                        >
+                          <span className="library-search-copy">
+                            <strong className="library-item-label" title={item.label}>{item.label}</strong>
+                            <span className="library-item-subtitle" title={item.sectionLabel}>{item.sectionLabel}</span>
+                          </span>
+                          <span className="library-item-meta">
+                            {isLocked
+                              ? language === 'zh'
+                                ? '锁定'
+                                : 'locked'
+                              : isSelected
+                                ? t.selectedMeta
+                                : t.availableMeta}
+                          </span>
+
+                          <AssetImage
+                            candidates={item.imageCandidates}
+                            alt={item.label}
+                            className="module-thumb-image-hidden"
+                            imageRef={(node) => {
+                              if (node) {
+                                moduleThumbRefs.current[item.key] = node
+                              }
+                            }}
+                          />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="library-section-add"
+                          disabled={!addTargetSlot || isLocked}
+                          onClick={() => {
+                            handleAddModule(item.key)
+                          }}
+                        >
+                          {t.add}
+                        </button>
+                      </div>
+                    )
+                  }) : (
+                    <div className="library-empty-state">{t.noMatchingModules}</div>
+                  )}
+                </div>
+              </section>
+            ) : visibleLibrarySections.map((section) => (
               <section key={section.key} className="library-section">
+                {(() => {
+                  const { item: sectionTargetItem, slot: sectionTargetSlot } = getAddTargetForSection(section)
+
+                  return (
                 <div
                   className={`library-section-header ${
                     openLibrarySections[section.key] ? 'library-section-toggle-open' : ''
@@ -1982,21 +3037,19 @@ function App() {
                     type="button"
                     className="library-section-toggle"
                     onClick={() => {
-                      setOpenLibrarySections((current) => ({
-                        ...current,
-                        [section.key]: !current[section.key],
-                      }))
+                      const nextOpen = !openLibrarySections[section.key]
+                      setOpenLibrarySections(
+                        Object.fromEntries(librarySections.map((item) => [item.key, item.key === section.key ? nextOpen : false])),
+                      )
                     }}
                   >
                     <span className="library-section-title">
-                      <span>{section.label}</span>
+                      <span className="library-section-name" title={section.label}>{section.label}</span>
                       <span className="library-section-count">
                         {section.visibleCount}/{section.realItemCount || 0}
                       </span>
                     </span>
-                    <span className="library-section-arrow">
-                      {openLibrarySections[section.key] ? '-' : '+'}
-                    </span>
+                        <span className="library-section-arrow">›</span>
                   </button>
                   <button
                     type="button"
@@ -2004,11 +3057,13 @@ function App() {
                     onClick={() => {
                       handleAddFromSection(section)
                     }}
-                    disabled={!section.visibleItems.some((item) => !item.placeholder) || !findNextEmptySlot()}
+                    disabled={!sectionTargetItem || !sectionTargetSlot}
                   >
-                    Add
+                    {t.add}
                   </button>
                 </div>
+                  )
+                })()}
 
                 {openLibrarySections[section.key] ? (
                   <div className="library-section-items">
@@ -2024,12 +3079,12 @@ function App() {
                           }`}
                           draggable={!item.placeholder}
                           onClick={() => {
-                            if (!item.placeholder) {
+                            if (!item.placeholder && (hasLockedController || item.tone === 'controller')) {
                               setSelectedModuleKey(item.key)
                             }
                           }}
                           onDragStart={(event) => {
-                            if (item.placeholder) {
+                            if (item.placeholder || (!hasLockedController && item.tone !== 'controller')) {
                               event.preventDefault()
                               return
                             }
@@ -2053,9 +3108,17 @@ function App() {
                             }
                           }}
                         >
-                          <span className="library-item-label">{item.label}</span>
+                          <span className="library-item-label" title={item.label}>{item.label}</span>
                           <span className="library-item-meta">
-                            {item.placeholder ? 'placeholder' : isSelected ? 'selected' : 'available'}
+                            {item.placeholder
+                              ? t.placeholderMeta
+                              : !hasLockedController && item.tone !== 'controller'
+                                ? language === 'zh'
+                                  ? '锁定'
+                                  : 'locked'
+                                : isSelected
+                                  ? t.selectedMeta
+                                  : t.availableMeta}
                           </span>
 
                           {!item.placeholder ? (
@@ -2073,33 +3136,42 @@ function App() {
                         </button>
                       )
                     }) : (
-                      <div className="library-empty-state">No matching modules in this section.</div>
+                      <div className="library-empty-state">{t.noMatchingModules}</div>
                     )}
                   </div>
                 ) : null}
               </section>
             ))}
           </div>
+
         </aside>
 
         <section className="canvas-panel">
           <div className="canvas-header">
             <div>
-              <p className="eyebrow">Chassis Canvas</p>
-              <h2>{selectedChassis.label} slot preview</h2>
+              <p className="eyebrow">{t.chassisCanvas}</p>
+              <h2>{t.slotPreview(selectedChassis.label)}</h2>
             </div>
             <div className="canvas-badge-group">
-              <span className="panel-badge">{chassisModel?.slots.length ?? 0} slots</span>
+              <span className="panel-badge">{t.slots(chassisModel?.slots.length ?? 0)}</span>
               <span className="panel-badge subtle-badge">
-                {draggedModuleKey ? `dragging ${draggedModuleKey}` : 'drop enabled'}
+                {draggedModuleKey ? t.dragging(draggedModuleKey) : t.dropEnabled}
               </span>
+              <button
+                type="button"
+                className="panel-badge badge-button"
+                onClick={handleFillAllFillers}
+                disabled={!fillerModule || !hasLockedController || emptyModuleSlotCount === 0}
+              >
+                {t.fillFillers}
+              </button>
               <button
                 type="button"
                 className="panel-badge badge-button"
                 onClick={handleExportImage}
                 disabled={!chassisModel || isExportingImage}
               >
-                {isExportingImage ? 'Exporting...' : 'Export PNG'}
+                {isExportingImage ? t.exporting : t.exportPng}
               </button>
               <button
                 type="button"
@@ -2108,14 +3180,14 @@ function App() {
                   setShowSlotAnchors((current) => !current)
                 }}
               >
-                {showSlotAnchors ? 'Hide Anchors' : 'Show Anchors'}
+                {showSlotAnchors ? t.hideAnchors : t.showAnchors}
               </button>
             </div>
           </div>
 
           <div className="builder-save-bar">
             <label className="builder-save-field">
-              <span>Configuration Name</span>
+              <span>{t.configurationName}</span>
               <input
                 type="text"
                 value={configurationName}
@@ -2124,7 +3196,7 @@ function App() {
                   setSaveError('')
                   setSaveMessage('')
                 }}
-                placeholder="Enter a name for this layout"
+                placeholder={t.enterNameForLayout}
               />
             </label>
 
@@ -2134,7 +3206,7 @@ function App() {
               onClick={handleSaveConfiguration}
               disabled={saveLoading}
             >
-              {saveLoading ? 'Saving...' : currentConfigurationId ? 'Update Save' : 'Save Configuration'}
+              {saveLoading ? t.saving : currentConfigurationId ? t.updateSave : t.saveConfiguration}
             </button>
           </div>
 
@@ -2158,12 +3230,12 @@ function App() {
               }
             }}
           >
-            {dataState.loading ? <div className="preview-empty">Loading tmj files...</div> : null}
+            {dataState.loading ? <div className="preview-empty">{language === 'zh' ? '正在加载 tmj 文件...' : 'Loading tmj files...'}</div> : null}
             {!dataState.loading && dataState.error ? (
-              <div className="preview-empty">Failed to load tmj: {dataState.error}</div>
+              <div className="preview-empty">{language === 'zh' ? `加载 tmj 失败：${dataState.error}` : `Failed to load tmj: ${dataState.error}`}</div>
             ) : null}
             {!dataState.loading && !dataState.error && !chassisModel ? (
-              <div className="preview-empty">No chassis image layer or slot anchors were found.</div>
+              <div className="preview-empty">{language === 'zh' ? '没有找到机箱图层或槽位锚点。' : 'No chassis image layer or slot anchors were found.'}</div>
             ) : null}
 
             {chassisModel && previewLayout ? (
@@ -2248,7 +3320,7 @@ function App() {
 
                   {showSlotAnchors
                     ? previewLayout.slots.map((slot) => {
-                        const occupiedBy = placedModules[slot.id]
+                        const occupiedBy = occupiedSlotMap[slot.id]?.moduleKey
 
                         return (
                           <button
@@ -2263,7 +3335,16 @@ function App() {
                             title={`Slot ${slot.index}${occupiedBy ? `: ${occupiedBy}` : ''}`}
                             onClick={() => {
                               setActiveSlotId(slot.id)
-                              if (!occupiedBy && selectedModuleKey) {
+                              const selectedModule = moduleLookup[selectedModuleKey]
+                              const targetSlot = findNextAvailableSlotForModule(selectedModuleKey)
+                              if (
+                                !occupiedBy &&
+                                selectedModuleKey &&
+                                selectedModule &&
+                                (hasLockedController || selectedModule.tone === 'controller') &&
+                                (slot.id !== firstSlotId || selectedModule.tone === 'controller') &&
+                                targetSlot?.id === slot.id
+                              ) {
                                 placeModuleAtSlot(slot.id, selectedModuleKey)
                               }
                             }}
@@ -2276,6 +3357,45 @@ function App() {
                 </div>
               </div>
             ) : null}
+          </div>
+
+          <div className="placed-modules-panel placed-modules-panel-canvas">
+            <div className="section-title-row">
+              <div>
+                <p className="eyebrow">{language === 'zh' ? '已放置模块' : 'Placed Modules'}</p>
+                <h2>{language === 'zh' ? '当前配置' : 'Current layout'}</h2>
+              </div>
+            </div>
+
+            {placedModuleList.length ? (
+              <div className="placed-modules-list">
+                {placedModuleList.map((item) => (
+                  <article key={`${item.slotId}-${item.label}`} className="placed-module-row">
+                    <div>
+                      <strong>{item.label}</strong>
+                      <span>
+                        {language === 'zh'
+                          ? `槽位 ${item.slotIndex}${item.tone === 'controller' ? ' · controller' : ''}${item.span > 1 ? ` · ${item.span} 格` : ''}`
+                          : `Slot ${item.slotIndex}${item.tone === 'controller' ? ' · controller' : ''}${item.span > 1 ? ` · ${item.span} slots` : ''}`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="placed-module-remove"
+                      onClick={() => {
+                        removeModuleAtSlot(item.slotId)
+                      }}
+                    >
+                      {language === 'zh' ? '删除' : 'Remove'}
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="library-empty-state">
+                {language === 'zh' ? '还没有放置任何模块。' : 'No modules placed yet.'}
+              </div>
+            )}
           </div>
 
         </section>
