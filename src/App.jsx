@@ -265,6 +265,46 @@ const FILLER_MODULE_SOURCE = {
 
 const CHASSIS_SOURCES = [
   {
+    key: 'pxie-1071',
+    label: 'PXIe-1071',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1071.png',
+    tmjPath: '/chassis/PXIe-1071.tmj',
+  },
+  {
+    key: 'pxie-1081',
+    label: 'PXIe-1081',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1081.png',
+    tmjPath: '/chassis/PXIe-1081.tmj',
+  },
+  {
+    key: 'pxie-1084',
+    label: 'PXIe-1084',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1084.png',
+    tmjPath: '/chassis/PXIe-1084.tmj',
+  },
+  {
+    key: 'pxie-1086dc',
+    label: 'PXIe-1086DC',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1086DC.png',
+    tmjPath: '/chassis/PXIe-1086DC.tmj',
+  },
+  {
+    key: 'pxie-1088',
+    label: 'PXIe-1088',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1088.png',
+    tmjPath: '/chassis/PXIe-1088.tmj',
+  },
+  {
     key: 'pxie-1095',
     label: 'PXIe-1095',
     status: 'available',
@@ -283,6 +323,41 @@ const CHASSIS_SOURCES = [
 ]
 
 const CHASSIS_OPTIONS = [
+  {
+    key: 'pxie-1071',
+    label: 'PXIe-1071',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1071.png',
+  },
+  {
+    key: 'pxie-1081',
+    label: 'PXIe-1081',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1081.png',
+  },
+  {
+    key: 'pxie-1084',
+    label: 'PXIe-1084',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1084.png',
+  },
+  {
+    key: 'pxie-1086dc',
+    label: 'PXIe-1086DC',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1086DC.png',
+  },
+  {
+    key: 'pxie-1088',
+    label: 'PXIe-1088',
+    status: 'available',
+    note: 'Ready with slot anchors and preview image',
+    image: 'PXIe-1088.png',
+  },
   {
     key: 'pxie-1095',
     label: 'PXIe-1095',
@@ -407,7 +482,45 @@ function formatModuleLabel(value) {
 
 function buildImageCandidates(filename) {
   const file = basename(filename)
-  return [`/test/${encodeURIComponent(file)}`, `/地图原素材/${encodeURIComponent(file)}`]
+  return [
+    `/chassis/${encodeURIComponent(file)}`,
+    `/test/${encodeURIComponent(file)}`,
+    `/地图原素材/${encodeURIComponent(file)}`,
+  ]
+}
+
+function collapseNearbySlots(points, threshold = 40) {
+  if (!points.length) {
+    return []
+  }
+
+  const clusters = []
+
+  points
+    .slice()
+    .sort((a, b) => a.x - b.x)
+    .forEach((point) => {
+      const currentCluster = clusters[clusters.length - 1]
+
+      if (!currentCluster || Math.abs(point.x - currentCluster[currentCluster.length - 1].x) > threshold) {
+        clusters.push([point])
+        return
+      }
+
+      currentCluster.push(point)
+    })
+
+  return clusters.map((cluster) => {
+    const x = cluster.reduce((sum, point) => sum + point.x, 0) / cluster.length
+    const y = cluster.reduce((sum, point) => sum + point.y, 0) / cluster.length
+    const primary = cluster[0]
+
+    return {
+      ...primary,
+      x,
+      y,
+    }
+  })
 }
 
 function createSyntheticImageMap(source, width, height) {
@@ -1494,8 +1607,7 @@ function App() {
     }
 
     const yLine = dominantY(points)
-    const slots = points
-      .filter((point) => Math.abs(point.y - yLine) < 30)
+    const slots = collapseNearbySlots(points.filter((point) => Math.abs(point.y - yLine) < 30))
       .sort((a, b) => a.x - b.x)
       .map((point, index) => ({
         id: point.id,
