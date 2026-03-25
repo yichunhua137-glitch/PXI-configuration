@@ -751,6 +751,22 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, l
               </p>
             </button>
 
+            <button
+              type="button"
+              className="dashboard-tool-card dashboard-tool-card-active"
+              onClick={() => {
+                onOpenConfiguration('library-check')
+              }}
+            >
+              <span className="dashboard-tool-kicker">{language === 'zh' ? '诊断' : 'Diagnostics'}</span>
+              <strong>{language === 'zh' ? '模块库自检' : 'Module Library Check'}</strong>
+              <p>
+                {language === 'zh'
+                  ? '在真实部署环境里逐个检测 manifest、tmj 和图片资源。'
+                  : 'Probe the manifest, tmj files, and images inside the real deployed app.'}
+              </p>
+            </button>
+
             <article className="dashboard-tool-card dashboard-tool-card-placeholder">
               <span className="dashboard-tool-kicker">{t.placeholder}</span>
               <strong>{t.otherTool}</strong>
@@ -779,6 +795,191 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, l
                 <span className="update-log-date">{item.date}</span>
                 <strong>{item.title}</strong>
                 <p>{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </article>
+      </section>
+    </div>
+  )
+}
+
+function probeImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight })
+    image.onerror = () => reject(new Error(`Failed to load image: ${url}`))
+    image.src = url
+  })
+}
+
+function ModuleLibraryCheckScreen({ language, onBack }) {
+  const [status, setStatus] = useState({
+    loading: true,
+    issues: [],
+    checked: 0,
+    total: 0,
+    summary: '',
+  })
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function runCheck() {
+      const issues = []
+
+      try {
+        const manifestResponse = await fetch(`/module-library/manifest.json?ts=${Date.now()}`, { cache: 'no-store' })
+        if (!manifestResponse.ok) {
+          throw new Error('Failed to load manifest.json')
+        }
+
+        const manifest = await manifestResponse.json()
+        if (!Array.isArray(manifest)) {
+          throw new Error('manifest.json is not an array')
+        }
+
+        let checked = 0
+        for (const entry of manifest) {
+          try {
+            const tmjResponse = await fetch(`${entry.tmjPath}?ts=${Date.now()}`, { cache: 'no-store' })
+            if (!tmjResponse.ok) {
+              throw new Error(`TMJ ${tmjResponse.status}`)
+            }
+
+            const tmj = await tmjResponse.json()
+            const imageLayer = (tmj.layers || []).find((layer) => layer.type === 'imagelayer' && layer.image)
+            if (!imageLayer?.image) {
+              throw new Error('Missing imagelayer image')
+            }
+
+            await probeImage(entry.imagePath)
+            const tmjImagePath = `${entry.tmjPath.split('/').slice(0, -1).join('/')}/${encodeURIComponent(imageLayer.image).replace(/%2F/g, '/')}`
+            await probeImage(tmjImagePath)
+          } catch (error) {
+            issues.push({
+              label: entry.label,
+              category: entry.category,
+              message: error instanceof Error ? error.message : 'Unknown error',
+              tmjPath: entry.tmjPath,
+              imagePath: entry.imagePath,
+            })
+          }
+
+          checked += 1
+          if (!cancelled) {
+            setStatus({
+              loading: true,
+              issues: [...issues],
+              checked,
+              total: manifest.length,
+              summary: '',
+            })
+          }
+        }
+
+        if (!cancelled) {
+          setStatus({
+            loading: false,
+            issues,
+            checked: manifest.length,
+            total: manifest.length,
+            summary: issues.length
+              ? `${issues.length} module assets failed the runtime check.`
+              : 'All module assets passed the runtime check.',
+          })
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setStatus({
+            loading: false,
+            issues: [],
+            checked: 0,
+            total: 0,
+            summary: error instanceof Error ? error.message : 'Module library check failed.',
+          })
+        }
+      }
+    }
+
+    runCheck()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero preview-hero">
+        <div className="home-copy">
+          <p className="eyebrow">{language === 'zh' ? '线上自检' : 'Runtime Check'}</p>
+          <h1>{language === 'zh' ? '逐个检测模块库资源。' : 'Probe the module library one asset at a time.'}</h1>
+          <p className="hero-text">
+            {language === 'zh'
+              ? '这个页面会在当前部署环境里逐个请求 manifest、tmj 和图片，列出真正线上失败的文件。'
+              : 'This page requests the manifest, tmj files, and images from the current deployment and lists the assets that actually fail online.'}
+          </p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>{status.checked}</strong>
+            <span>{language === 'zh' ? '已检测模块' : 'Checked modules'}</span>
+          </article>
+          <article className="summary-card">
+            <strong>{status.issues.length}</strong>
+            <span>{language === 'zh' ? '失败项' : 'Failures'}</span>
+          </article>
+          <button type="button" className="summary-card summary-card-button" onClick={onBack}>
+            <strong>{language === 'zh' ? '返回' : 'Back'}</strong>
+            <small>{language === 'zh' ? '回到 Dashboard' : 'Return to Dashboard'}</small>
+          </button>
+        </div>
+      </section>
+
+      <section className="home-grid preview-grid">
+        <article className="home-panel preview-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">{language === 'zh' ? '检测结果' : 'Results'}</p>
+              <h2>{language === 'zh' ? '模块库线上状态' : 'Module library runtime status'}</h2>
+            </div>
+          </div>
+
+          <div className="library-check-summary">
+            <strong>{status.loading ? (language === 'zh' ? '检测中...' : 'Checking...') : status.summary}</strong>
+            <span>
+              {status.total
+                ? `${status.checked} / ${status.total}`
+                : language === 'zh'
+                  ? '等待开始'
+                  : 'Waiting to start'}
+            </span>
+          </div>
+
+          <div className="library-check-list">
+            {status.loading && !status.issues.length ? (
+              <article className="saved-config-card">
+                <strong>{language === 'zh' ? '正在扫描模块...' : 'Scanning modules...'}</strong>
+                <span>{language === 'zh' ? '这会逐个请求所有 tmj 和图片资源。' : 'This requests each tmj and image asset one by one.'}</span>
+              </article>
+            ) : null}
+
+            {!status.loading && !status.issues.length ? (
+              <article className="saved-config-card">
+                <strong>{language === 'zh' ? '没有发现线上资源错误。' : 'No runtime asset failures were found.'}</strong>
+                <span>{language === 'zh' ? 'manifest、tmj 和图片在当前部署环境里都能打开。' : 'The manifest, tmj files, and images are all reachable in this deployment.'}</span>
+              </article>
+            ) : null}
+
+            {status.issues.map((issue) => (
+              <article key={`${issue.category}-${issue.label}`} className="saved-config-card library-check-card">
+                <strong>{issue.label}</strong>
+                <span>{issue.category}</span>
+                <span>{issue.message}</span>
+                <span>{issue.tmjPath}</span>
+                <span>{issue.imagePath}</span>
               </article>
             ))}
           </div>
@@ -2789,6 +2990,29 @@ function App() {
           }}
         />
         <AnchorPreviewScreen
+          language={language}
+          onBack={() => {
+            setCurrentScreen('dashboard')
+          }}
+        />
+      </main>
+    )
+  }
+
+  if (currentScreen === 'library-check') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading
+          currentScreen="dashboard"
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
+        <ModuleLibraryCheckScreen
           language={language}
           onBack={() => {
             setCurrentScreen('dashboard')

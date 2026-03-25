@@ -2087,6 +2087,38 @@ button.dashboard-tool-card {
   gap: 14px;
 }
 
+.library-check-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--ni-border);
+  border-radius: var(--ni-radius-md);
+  background: linear-gradient(180deg, #ffffff, #f6f7f7);
+}
+
+.library-check-summary strong {
+  color: var(--ni-green-dark);
+  font-size: 1rem;
+}
+
+.library-check-summary span {
+  color: var(--ni-text-muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.library-check-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.library-check-card {
+  gap: 4px;
+}
+
 .topbar-home-button,
 .sidebar-home-button,
 .saves-back-button {
