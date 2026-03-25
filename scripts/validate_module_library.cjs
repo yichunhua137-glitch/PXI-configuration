@@ -6,7 +6,7 @@ const publicDir = path.join(root, 'public');
 const manifestPath = path.join(publicDir, 'module-library', 'manifest.json');
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  return JSON.parse(fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, ''));
 }
 
 function exactEntryExists(absPath) {

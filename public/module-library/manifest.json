@@ -332,40 +332,40 @@
     "label": "PXIe-6592R",
     "category": "PXI High-Speed Serial Modules",
     "tone": "module",
-    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6592R.tmj",
-    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6592R.png"
+    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6592R.tmj",
+    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6592R.png"
   },
   {
     "key": "pxi-high-speed-serial-modules-pxie-6593",
     "label": "PXIe-6593",
     "category": "PXI High-Speed Serial Modules",
     "tone": "module",
-    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6593.tmj",
-    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6593.png"
+    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6593.tmj",
+    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6593.png"
   },
   {
     "key": "pxi-high-speed-serial-modules-pxie-6594",
     "label": "PXIe-6594",
     "category": "PXI High-Speed Serial Modules",
     "tone": "module",
-    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6594.tmj",
-    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-6594.png"
+    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6594.tmj",
+    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6594.png"
   },
   {
     "key": "pxi-high-speed-serial-modules-pxie-7092",
     "label": "PXIe-7092",
     "category": "PXI High-Speed Serial Modules",
     "tone": "module",
-    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7092.tmj",
-    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7092.png"
+    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-7092.tmj",
+    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-7092.png"
   },
   {
     "key": "pxi-high-speed-serial-modules-pxie-7093",
     "label": "PXIe-7093",
     "category": "PXI High-Speed Serial Modules",
     "tone": "module",
-    "tmjPath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7093.tmj",
-    "imagePath": "/module-library/PXI%20High-Speed%20Serial%20Modules/PXIe-7093.png"
+    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-7093.tmj",
+    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-7093.png"
   },
   {
     "key": "pxi-power-supply-modules-pxie-4112",
