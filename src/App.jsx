@@ -666,6 +666,15 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut, language, o
         </button>
         <button
           type="button"
+          className={`global-nav-item ${currentScreen === 'feedback' ? 'global-nav-item-active' : ''}`}
+          onClick={() => {
+            onNavigate('feedback')
+          }}
+        >
+          {language === 'zh' ? '留言板' : 'Feedback'}
+        </button>
+        <button
+          type="button"
           className={`global-nav-item ${currentScreen === 'user' ? 'global-nav-item-active' : ''}`}
           onClick={() => {
             onNavigate('user')
@@ -690,7 +699,7 @@ function GlobalHeading({ currentScreen, user, onNavigate, onSignOut, language, o
   )
 }
 
-function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, language }) {
+function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, onOpenFeedback, language }) {
   const t = UI_TEXT[language]
   return (
     <div className="app-screen home-shell">
@@ -733,6 +742,16 @@ function DashboardScreen({ savedConfigCount, onOpenConfiguration, onOpenSaves, l
               <span className="dashboard-tool-kicker">{t.ready}</span>
               <strong>{t.yourSaves}</strong>
               <p>{t.savesDesc}</p>
+            </button>
+
+            <button type="button" className="dashboard-tool-card dashboard-tool-card-active" onClick={onOpenFeedback}>
+              <span className="dashboard-tool-kicker">{language === 'zh' ? '公开' : 'Public'}</span>
+              <strong>{language === 'zh' ? '留言板' : 'Feedback Board'}</strong>
+              <p>
+                {language === 'zh'
+                  ? '查看大家已经提交的建议和问题，并为已有反馈点赞。'
+                  : 'Read public requests, avoid duplicates, and upvote existing feedback.'}
+              </p>
             </button>
 
             <button
@@ -1084,6 +1103,7 @@ function UserScreen({
   onToggleNextConfirmPasswordVisibility,
   onPasswordSubmit,
   onOpenSaves,
+  onOpenFeedback,
 }) {
   const t = UI_TEXT[language]
   return (
@@ -1107,6 +1127,10 @@ function UserScreen({
           <button type="button" className="summary-card summary-card-button" onClick={onOpenSaves}>
             <strong>{t.yourSaves}</strong>
             <small>{t.openSavedLayouts}</small>
+          </button>
+          <button type="button" className="summary-card summary-card-button" onClick={onOpenFeedback}>
+            <strong>{language === 'zh' ? '留言板' : 'Feedback Board'}</strong>
+            <small>{language === 'zh' ? '查看需求与问题反馈' : 'View requests and issue reports'}</small>
           </button>
         </div>
       </section>
@@ -1230,6 +1254,247 @@ function UserScreen({
               {passwordLoading ? t.updating : t.changePassword}
             </button>
           </form>
+        </article>
+      </section>
+    </div>
+  )
+}
+
+function FeedbackBoardScreen({
+  language,
+  feedbackItems,
+  feedbackLoading,
+  feedbackError,
+  feedbackSubmitting,
+  feedbackTitle,
+  feedbackMessage,
+  feedbackCategory,
+  feedbackPage,
+  feedbackNotice,
+  feedbackSubmitError,
+  voteLoadingId,
+  user,
+  onFeedbackTitleChange,
+  onFeedbackMessageChange,
+  onFeedbackCategoryChange,
+  onFeedbackPageChange,
+  onFeedbackSubmit,
+  onToggleVote,
+}) {
+  const copy =
+    language === 'zh'
+      ? {
+          eyebrow: '公开反馈',
+          title: '查看大家的想法，也提交你的需求。',
+          body: '所有登录用户都能看到这块留言板。提新需求之前，可以先看看是否已经有人提过并给它点赞。',
+          total: '总反馈数',
+          open: '开放项',
+          formEyebrow: '提交反馈',
+          formTitle: '新增一条建议或问题',
+          listEyebrow: '公开列表',
+          listTitle: '当前反馈',
+          titleLabel: '标题',
+          messageLabel: '详细内容',
+          categoryLabel: '类型',
+          pageLabel: '页面',
+          titlePlaceholder: '例如：希望 builder 支持模块兼容性检查',
+          messagePlaceholder: '描述你希望增加的功能、遇到的问题，或者希望优化的地方。',
+          submit: '提交反馈',
+          submitting: '提交中...',
+          noItems: '还没有任何反馈。',
+          loading: '正在加载反馈...',
+          vote: '点赞',
+          unvote: '取消点赞',
+          by: '提交人',
+          status: '状态',
+          votes: '点赞数',
+          feature: '功能建议',
+          bug: '问题反馈',
+          improvement: '体验优化',
+          other: '其他',
+          dashboard: 'Dashboard',
+          builder: 'Builder',
+          saves: 'Your Saves',
+          user: 'User',
+        }
+      : {
+          eyebrow: 'Public Feedback',
+          title: 'See what others want, then add your own request.',
+          body: 'Every signed-in user can view this board. Check existing requests first, then upvote them instead of posting duplicates.',
+          total: 'Total feedback',
+          open: 'Open items',
+          formEyebrow: 'New Feedback',
+          formTitle: 'Post a request or report',
+          listEyebrow: 'Public Board',
+          listTitle: 'Current feedback',
+          titleLabel: 'Title',
+          messageLabel: 'Details',
+          categoryLabel: 'Category',
+          pageLabel: 'Page',
+          titlePlaceholder: 'Example: Add compatibility checks in the builder',
+          messagePlaceholder: 'Describe the feature you want, the issue you hit, or the workflow you want improved.',
+          submit: 'Submit Feedback',
+          submitting: 'Submitting...',
+          noItems: 'No feedback has been posted yet.',
+          loading: 'Loading feedback...',
+          vote: 'Upvote',
+          unvote: 'Remove vote',
+          by: 'Posted by',
+          status: 'Status',
+          votes: 'Votes',
+          feature: 'Feature request',
+          bug: 'Bug report',
+          improvement: 'UX improvement',
+          other: 'Other',
+          dashboard: 'Dashboard',
+          builder: 'Builder',
+          saves: 'Your Saves',
+          user: 'User',
+        }
+
+  const openCount = feedbackItems.filter((item) => item.status === 'open').length
+
+  return (
+    <div className="app-screen home-shell">
+      <section className="home-hero dashboard-hero">
+        <div className="home-copy">
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.title}</h1>
+          <p className="hero-text">{copy.body}</p>
+        </div>
+
+        <div className="home-summary">
+          <article className="summary-card">
+            <strong>{feedbackItems.length}</strong>
+            <span>{copy.total}</span>
+          </article>
+          <article className="summary-card">
+            <strong>{openCount}</strong>
+            <span>{copy.open}</span>
+          </article>
+        </div>
+      </section>
+
+      <section className="home-grid">
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">{copy.formEyebrow}</p>
+              <h2>{copy.formTitle}</h2>
+            </div>
+          </div>
+
+          <form className="feedback-form" onSubmit={onFeedbackSubmit}>
+            <label className="auth-field">
+              <span>{copy.titleLabel}</span>
+              <input
+                type="text"
+                value={feedbackTitle}
+                onChange={(event) => onFeedbackTitleChange(event.target.value)}
+                placeholder={copy.titlePlaceholder}
+                maxLength={120}
+                required
+              />
+            </label>
+
+            <label className="auth-field">
+              <span>{copy.messageLabel}</span>
+              <textarea
+                className="feedback-textarea"
+                value={feedbackMessage}
+                onChange={(event) => onFeedbackMessageChange(event.target.value)}
+                placeholder={copy.messagePlaceholder}
+                rows={6}
+                required
+              />
+            </label>
+
+            <div className="feedback-form-grid">
+              <label className="auth-field">
+                <span>{copy.categoryLabel}</span>
+                <select value={feedbackCategory} onChange={(event) => onFeedbackCategoryChange(event.target.value)}>
+                  <option value="feature_request">{copy.feature}</option>
+                  <option value="bug_report">{copy.bug}</option>
+                  <option value="ux_improvement">{copy.improvement}</option>
+                  <option value="other">{copy.other}</option>
+                </select>
+              </label>
+
+              <label className="auth-field">
+                <span>{copy.pageLabel}</span>
+                <select value={feedbackPage} onChange={(event) => onFeedbackPageChange(event.target.value)}>
+                  <option value="dashboard">{copy.dashboard}</option>
+                  <option value="builder">{copy.builder}</option>
+                  <option value="saves">{copy.saves}</option>
+                  <option value="user">{copy.user}</option>
+                </select>
+              </label>
+            </div>
+
+            {feedbackSubmitError ? <div className="auth-message auth-message-error">{feedbackSubmitError}</div> : null}
+            {feedbackNotice ? <div className="auth-message auth-message-success">{feedbackNotice}</div> : null}
+
+            <button type="submit" className="auth-submit feedback-submit" disabled={feedbackSubmitting || !user}>
+              {feedbackSubmitting ? copy.submitting : copy.submit}
+            </button>
+          </form>
+        </article>
+
+        <article className="home-panel">
+          <div className="section-title-row">
+            <div>
+              <p className="eyebrow">{copy.listEyebrow}</p>
+              <h2>{copy.listTitle}</h2>
+            </div>
+          </div>
+
+          {feedbackError ? <div className="auth-message auth-message-error">{feedbackError}</div> : null}
+
+          <div className="feedback-list">
+            {feedbackLoading ? (
+              <div className="home-empty-state">{copy.loading}</div>
+            ) : feedbackItems.length ? (
+              feedbackItems.map((item) => (
+                <article key={item.id} className="saved-config-card feedback-card">
+                  <div className="feedback-card-copy">
+                    <strong>{item.title}</strong>
+                    <span>{item.message}</span>
+                    <div className="feedback-meta-row">
+                      <span>{copy.status}: {item.status}</span>
+                    </div>
+                    <div className="feedback-meta-row">
+                      <span>{item.category}</span>
+                      <span>{item.page}</span>
+                      <span>{new Date(item.created_at).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="saved-config-actions">
+                    <button
+                      type="button"
+                      className={`feedback-vote-button ${item.hasVoted ? 'feedback-vote-button-active' : ''}`}
+                      disabled={voteLoadingId === item.id || !user}
+                      onClick={() => onToggleVote(item)}
+                      aria-label={item.hasVoted ? copy.unvote : copy.vote}
+                      title={item.hasVoted ? copy.unvote : copy.vote}
+                    >
+                      <span className="feedback-vote-icon" aria-hidden="true">
+                        {voteLoadingId === item.id ? (
+                          '...'
+                        ) : (
+                          <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M1.5 10.5C1.5 9.672 2.172 9 3 9h2.25c.828 0 1.5.672 1.5 1.5v9c0 .828-.672 1.5-1.5 1.5H3c-.828 0-1.5-.672-1.5-1.5v-9ZM9 21a1.5 1.5 0 0 1-1.5-1.5V10.88a1.5 1.5 0 0 1 .44-1.06l5.157-5.157A1.5 1.5 0 0 1 15.659 5.7L14.25 9h5.13c1.657 0 2.858 1.574 2.42 3.171l-1.435 5.25A3 3 0 0 1 17.47 19.5H9V21Z" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="feedback-vote-count">{item.voteCount}</span>
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="home-empty-state">{copy.noItems}</div>
+            )}
+          </div>
         </article>
       </section>
     </div>
@@ -1564,6 +1829,17 @@ function App() {
   const [passwordLoading, setPasswordLoading] = useState(false)
   const [passwordError, setPasswordError] = useState('')
   const [passwordMessage, setPasswordMessage] = useState('')
+  const [feedbackItems, setFeedbackItems] = useState([])
+  const [feedbackLoading, setFeedbackLoading] = useState(false)
+  const [feedbackError, setFeedbackError] = useState('')
+  const [feedbackTitle, setFeedbackTitle] = useState('')
+  const [feedbackMessage, setFeedbackMessage] = useState('')
+  const [feedbackCategory, setFeedbackCategory] = useState('feature_request')
+  const [feedbackPage, setFeedbackPage] = useState('builder')
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
+  const [feedbackSubmitError, setFeedbackSubmitError] = useState('')
+  const [feedbackNotice, setFeedbackNotice] = useState('')
+  const [voteLoadingId, setVoteLoadingId] = useState(null)
   const [currentScreen, setCurrentScreen] = useState('home')
   const [selectedChassisKey, setSelectedChassisKey] = useState('pxie-1095')
   const [searchText, setSearchText] = useState('')
@@ -2237,6 +2513,17 @@ function App() {
     }
 
     const chassisCenterX = chassisModel.width / 2
+    const getLayerIndex = (moduleTone, centerDistance) => {
+      if (moduleTone === 'filler') {
+        return 2
+      }
+
+      if (moduleTone === 'controller') {
+        return 10 + Math.round(centerDistance)
+      }
+
+      return 20 + Math.round(centerDistance)
+    }
 
     return Object.entries(placedModules)
       .map(([slotId, moduleKey]) => {
@@ -2262,7 +2549,7 @@ function App() {
             height: `${(module.imageHeight / chassisModel.height) * 100}%`,
             left: `${((anchorSlot.x - module.anchor.x) / chassisModel.width) * 100}%`,
             top: `${((anchorSlot.y - module.anchor.y) / chassisModel.height) * 100}%`,
-            zIndex: 2 + Math.round(centerDistance),
+            zIndex: getLayerIndex(module.tone, centerDistance),
           },
         }
       })
@@ -2284,6 +2571,12 @@ function App() {
     }
 
     const centerDistance = Math.abs(anchorSlot.x - chassisModel.width / 2)
+    const layerIndex =
+      module.tone === 'filler'
+        ? 2
+        : module.tone === 'controller'
+          ? 10 + Math.round(centerDistance)
+          : 20 + Math.round(centerDistance)
 
     return {
       label: module.label,
@@ -2293,7 +2586,7 @@ function App() {
         height: `${(module.imageHeight / chassisModel.height) * 100}%`,
         left: `${((anchorSlot.x - module.anchor.x) / chassisModel.width) * 100}%`,
         top: `${((anchorSlot.y - module.anchor.y) / chassisModel.height) * 100}%`,
-        zIndex: 2 + Math.round(centerDistance),
+        zIndex: layerIndex,
       },
     }
   }, [chassisModel, draggedModuleKey, getAnchorSlotForModule, hoverSlotId, moduleLibrary])
@@ -2327,6 +2620,59 @@ function App() {
 
     setIsLoadingSavedConfigurations(false)
   }
+
+  const refreshFeedbackItems = useCallback(async () => {
+    if (!supabase || !user) {
+      setFeedbackItems([])
+      setFeedbackError('')
+      return
+    }
+
+    setFeedbackLoading(true)
+    setFeedbackError('')
+
+    const [{ data: items, error: itemsError }, { data: votes, error: votesError }] = await Promise.all([
+      supabase.from('feedback_items').select('*').order('created_at', { ascending: false }),
+      supabase.from('feedback_votes').select('feedback_id,user_id'),
+    ])
+
+    if (itemsError || votesError) {
+      setFeedbackItems([])
+      setFeedbackError(itemsError?.message || votesError?.message || 'Failed to load feedback')
+      setFeedbackLoading(false)
+      return
+    }
+
+    const voteCountMap = new Map()
+    const votedByUser = new Set()
+
+    ;(votes ?? []).forEach((vote) => {
+      voteCountMap.set(vote.feedback_id, (voteCountMap.get(vote.feedback_id) ?? 0) + 1)
+      if (vote.user_id === user.id) {
+        votedByUser.add(vote.feedback_id)
+      }
+    })
+
+    setFeedbackItems(
+      (items ?? []).map((item) => ({
+        ...item,
+        voteCount: voteCountMap.get(item.id) ?? 0,
+        hasVoted: votedByUser.has(item.id),
+      })),
+    )
+    setFeedbackLoading(false)
+  }, [user])
+
+  useEffect(() => {
+    if (!supabase || !user) {
+      setFeedbackItems([])
+      setFeedbackLoading(false)
+      setFeedbackError('')
+      return
+    }
+
+    refreshFeedbackItems()
+  }, [refreshFeedbackItems, user])
 
   async function handleAuthSubmit(event) {
     event.preventDefault()
@@ -2409,6 +2755,12 @@ function App() {
     setNextConfirmPassword('')
     setPasswordError('')
     setPasswordMessage('')
+    setFeedbackItems([])
+    setFeedbackError('')
+    setFeedbackNotice('')
+    setFeedbackSubmitError('')
+    setFeedbackTitle('')
+    setFeedbackMessage('')
   }
 
   async function handlePasswordSubmit(event) {
@@ -2567,6 +2919,85 @@ function App() {
     }
 
     setDeletingConfigId(null)
+  }
+
+  async function handleFeedbackSubmit(event) {
+    event.preventDefault()
+
+    if (!supabase) {
+      setFeedbackSubmitError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
+
+    if (!user) {
+      return
+    }
+
+    const trimmedTitle = feedbackTitle.trim()
+    const trimmedMessage = feedbackMessage.trim()
+
+    if (!trimmedTitle || !trimmedMessage) {
+      setFeedbackSubmitError('Please enter both a title and a message.')
+      return
+    }
+
+    setFeedbackSubmitting(true)
+    setFeedbackSubmitError('')
+    setFeedbackNotice('')
+
+    const { error } = await supabase.from('feedback_items').insert({
+      user_id: user.id,
+      user_email: user.email,
+      title: trimmedTitle,
+      message: trimmedMessage,
+      category: feedbackCategory,
+      page: feedbackPage,
+      status: 'open',
+    })
+
+    if (error) {
+      setFeedbackSubmitError(error.message)
+    } else {
+      setFeedbackTitle('')
+      setFeedbackMessage('')
+      setFeedbackNotice(language === 'zh' ? '反馈已提交。' : 'Feedback submitted.')
+      await refreshFeedbackItems()
+    }
+
+    setFeedbackSubmitting(false)
+  }
+
+  async function handleToggleFeedbackVote(item) {
+    if (!supabase || !user) {
+      return
+    }
+
+    setVoteLoadingId(item.id)
+    setFeedbackError('')
+
+    let error = null
+    if (item.hasVoted) {
+      const response = await supabase
+        .from('feedback_votes')
+        .delete()
+        .eq('feedback_id', item.id)
+        .eq('user_id', user.id)
+      error = response.error
+    } else {
+      const response = await supabase.from('feedback_votes').insert({
+        feedback_id: item.id,
+        user_id: user.id,
+      })
+      error = response.error
+    }
+
+    if (error) {
+      setFeedbackError(error.message)
+    } else {
+      await refreshFeedbackItems()
+    }
+
+    setVoteLoadingId(null)
   }
 
   function placeModuleAtSlot(slotId, moduleKey) {
@@ -2944,6 +3375,9 @@ function App() {
           onOpenSaves={() => {
             setCurrentScreen('saves')
           }}
+          onOpenFeedback={() => {
+            setCurrentScreen('feedback')
+          }}
         />
       </main>
     )
@@ -2970,6 +3404,9 @@ function App() {
           }}
           onOpenSaves={() => {
             setCurrentScreen('saves')
+          }}
+          onOpenFeedback={() => {
+            setCurrentScreen('feedback')
           }}
         />
       </main>
@@ -3047,6 +3484,44 @@ function App() {
           onBackToConfiguration={() => {
             setCurrentScreen('home')
           }}
+        />
+      </main>
+    )
+  }
+
+  if (currentScreen === 'feedback') {
+    return (
+      <main className="page-shell home-shell">
+        <GlobalHeading
+          currentScreen="dashboard"
+          user={user}
+          onNavigate={setCurrentScreen}
+          onSignOut={handleSignOut}
+          language={language}
+          onToggleLanguage={() => {
+            setLanguage((current) => (current === 'en' ? 'zh' : 'en'))
+          }}
+        />
+        <FeedbackBoardScreen
+          language={language}
+          feedbackItems={feedbackItems}
+          feedbackLoading={feedbackLoading}
+          feedbackError={feedbackError}
+          feedbackSubmitting={feedbackSubmitting}
+          feedbackTitle={feedbackTitle}
+          feedbackMessage={feedbackMessage}
+          feedbackCategory={feedbackCategory}
+          feedbackPage={feedbackPage}
+          feedbackNotice={feedbackNotice}
+          feedbackSubmitError={feedbackSubmitError}
+          voteLoadingId={voteLoadingId}
+          user={user}
+          onFeedbackTitleChange={setFeedbackTitle}
+          onFeedbackMessageChange={setFeedbackMessage}
+          onFeedbackCategoryChange={setFeedbackCategory}
+          onFeedbackPageChange={setFeedbackPage}
+          onFeedbackSubmit={handleFeedbackSubmit}
+          onToggleVote={handleToggleFeedbackVote}
         />
       </main>
     )
