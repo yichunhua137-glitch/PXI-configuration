@@ -1457,7 +1457,7 @@ function App() {
         }
 
         const chassisResponses = await Promise.all(CHASSIS_SOURCES.map((source) => fetch(source.tmjPath)))
-        const moduleEntries = await Promise.all(
+        const moduleResults = await Promise.allSettled(
           moduleSources.map(async (source) => {
             if (source.tmjPath) {
               const response = await fetch(source.tmjPath)
@@ -1500,10 +1500,19 @@ function App() {
           CHASSIS_SOURCES.map((source, index) => [source.key, loadedMaps[index]]),
         )
 
+        const moduleEntries = moduleResults
+          .filter((result) => result.status === 'fulfilled')
+          .map((result) => result.value)
+
+        const failedModules = moduleResults
+          .filter((result) => result.status === 'rejected')
+          .map((result) => result.reason?.message)
+          .filter(Boolean)
+
         if (!cancelled) {
           setDataState({
             loading: false,
-            error: '',
+            error: failedModules.length ? failedModules[0] : '',
             chassisMaps,
             moduleEntries,
           })
