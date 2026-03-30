@@ -328,14 +328,6 @@
     "imagePath": "/module-library/PXI%20Electronic%20Load%20Modules/PXIe-4051.png"
   },
   {
-    "key": "pxi-high-speed-serial-modules-pxie-6592r",
-    "label": "PXIe-6592R",
-    "category": "PXI High-Speed Serial Modules",
-    "tone": "module",
-    "tmjPath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6592R.tmj",
-    "imagePath": "/module-library/PXI_High_Speed_Serial_Modules/PXIe-6592R.png"
-  },
-  {
     "key": "pxi-high-speed-serial-modules-pxie-6593",
     "label": "PXIe-6593",
     "category": "PXI High-Speed Serial Modules",
