@@ -263,6 +263,8 @@ const FILLER_MODULE_SOURCE = {
   hiddenInLibrary: true,
 }
 
+const ALLOWED_SIGNUP_DOMAINS = ['emerson.com', 'ni.com']
+
 const CHASSIS_SOURCES = [
   {
     key: 'pxie-1071',
@@ -1915,6 +1917,7 @@ function App() {
   const [dataState, setDataState] = useState({
     loading: true,
     error: '',
+    warning: '',
     chassisMaps: {},
     moduleEntries: [],
   })
@@ -2058,7 +2061,8 @@ function App() {
         if (!cancelled) {
           setDataState({
             loading: false,
-            error: failedModules.length ? failedModules[0] : '',
+            error: '',
+            warning: failedModules.length ? failedModules[0] : '',
             chassisMaps,
             moduleEntries,
           })
@@ -2068,6 +2072,7 @@ function App() {
           setDataState({
             loading: false,
             error: error instanceof Error ? error.message : 'Load failed',
+            warning: '',
             chassisMaps: {},
             moduleEntries: [],
           })
@@ -2776,8 +2781,14 @@ function App() {
           throw new Error('Passwords do not match.')
         }
 
+        const normalizedEmail = email.trim().toLowerCase()
+        const emailDomain = normalizedEmail.split('@')[1] ?? ''
+        if (!ALLOWED_SIGNUP_DOMAINS.includes(emailDomain)) {
+          throw new Error('Only @emerson.com or @ni.com email addresses can sign up.')
+        }
+
         const { error } = await supabase.auth.signUp({
-          email,
+          email: normalizedEmail,
           password,
         })
 
@@ -4198,6 +4209,11 @@ function App() {
             {dataState.loading ? <div className="preview-empty">{language === 'zh' ? '正在加载 tmj 文件...' : 'Loading tmj files...'}</div> : null}
             {!dataState.loading && dataState.error ? (
               <div className="preview-empty">{language === 'zh' ? `加载 tmj 失败：${dataState.error}` : `Failed to load tmj: ${dataState.error}`}</div>
+            ) : null}
+            {!dataState.loading && !dataState.error && dataState.warning ? (
+              <div className="builder-warning">
+                {language === 'zh' ? `已跳过无法加载的模块：${dataState.warning}` : `Skipped a module that failed to load: ${dataState.warning}`}
+              </div>
             ) : null}
             {!dataState.loading && !dataState.error && !chassisModel ? (
               <div className="preview-empty">{language === 'zh' ? '没有找到机箱图层或槽位锚点。' : 'No chassis image layer or slot anchors were found.'}</div>
