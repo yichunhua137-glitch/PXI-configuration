@@ -1,6 +1,6 @@
 {
   "compressionlevel": -1,
-  "height": 813,
+  "height": 780,
   "infinite": false,
   "layers": [
     {
@@ -17,7 +17,7 @@
           "type": "anchor",
           "visible": true,
           "width": 0,
-          "x": 124,
+          "x": 119,
           "y": 0
         }
       ],
@@ -30,8 +30,8 @@
     {
       "id": 2,
       "image": "PXIe-2524.png",
-      "imageheight": 813,
-      "imagewidth": 125,
+      "imageheight": 780,
+      "imagewidth": 120,
       "name": "image",
       "opacity": 1,
       "type": "imagelayer",
@@ -50,5 +50,5 @@
   "tilewidth": 1,
   "type": "map",
   "version": "1.10",
-  "width": 125
+  "width": 120
 }

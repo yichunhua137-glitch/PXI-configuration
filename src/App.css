@@ -605,6 +605,10 @@
   gap: 14px;
 }
 
+.feedback-form-grid-ideas {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .feedback-textarea {
   width: 100%;
   min-height: 132px;
@@ -636,7 +640,7 @@
 }
 
 .feedback-card {
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .feedback-card-copy {
@@ -691,6 +695,69 @@
   color: #647059;
   font-size: 1rem;
   font-weight: 700;
+}
+
+.feedback-comments-block {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(123, 164, 58, 0.12);
+}
+
+.feedback-comments-title {
+  font-size: 0.98rem;
+}
+
+.feedback-comments-list {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-comment-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(123, 164, 58, 0.12);
+  border-radius: 12px;
+  background: #f8faf4;
+}
+
+.feedback-comment-item small {
+  color: #647059;
+}
+
+.feedback-comment-empty {
+  color: #647059;
+}
+
+.feedback-comment-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.feedback-comment-textarea {
+  min-height: 96px;
+  padding: 12px 14px;
+  border: 1px solid rgba(123, 164, 58, 0.18);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #173526;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.feedback-comment-textarea:focus {
+  outline: none;
+  border-color: rgba(97, 142, 39, 0.58);
+  box-shadow: 0 0 0 4px rgba(125, 182, 61, 0.12);
+}
+
+.feedback-comment-submit {
+  width: 100%;
+  min-width: 132px;
 }
 
 .summary-link-button {

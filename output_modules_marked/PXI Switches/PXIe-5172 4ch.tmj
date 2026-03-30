@@ -1,6 +1,6 @@
 {
   "compressionlevel": -1,
-  "height": 828,
+  "height": 780,
   "infinite": false,
   "layers": [
     {
@@ -17,7 +17,7 @@
           "type": "anchor",
           "visible": true,
           "width": 0,
-          "x": 125,
+          "x": 118,
           "y": 0
         }
       ],
@@ -30,8 +30,8 @@
     {
       "id": 2,
       "image": "PXIe-5172 4ch.png",
-      "imageheight": 828,
-      "imagewidth": 126,
+      "imageheight": 780,
+      "imagewidth": 119,
       "name": "image",
       "opacity": 1,
       "type": "imagelayer",
@@ -50,5 +50,5 @@
   "tilewidth": 1,
   "type": "map",
   "version": "1.10",
-  "width": 126
+  "width": 119
 }

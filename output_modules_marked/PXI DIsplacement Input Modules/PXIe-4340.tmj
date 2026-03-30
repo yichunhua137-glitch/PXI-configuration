@@ -1,6 +1,6 @@
 {
   "compressionlevel": -1,
-  "height": 806,
+  "height": 780,
   "infinite": false,
   "layers": [
     {
@@ -17,7 +17,7 @@
           "type": "anchor",
           "visible": true,
           "width": 0,
-          "x": 123,
+          "x": 119,
           "y": 0
         }
       ],
@@ -30,8 +30,8 @@
     {
       "id": 2,
       "image": "PXIe-4340.png",
-      "imageheight": 806,
-      "imagewidth": 124,
+      "imageheight": 780,
+      "imagewidth": 120,
       "name": "image",
       "opacity": 1,
       "type": "imagelayer",
@@ -50,5 +50,5 @@
   "tilewidth": 1,
   "type": "map",
   "version": "1.10",
-  "width": 124
+  "width": 120
 }

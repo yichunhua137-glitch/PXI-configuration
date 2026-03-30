@@ -1266,6 +1266,7 @@ function FeedbackBoardScreen({
   feedbackLoading,
   feedbackError,
   feedbackSubmitting,
+  feedbackEntryType,
   feedbackTitle,
   feedbackMessage,
   feedbackCategory,
@@ -1273,83 +1274,99 @@ function FeedbackBoardScreen({
   feedbackNotice,
   feedbackSubmitError,
   voteLoadingId,
+  commentLoadingId,
+  feedbackCommentDrafts,
+  feedbackCommentError,
   user,
+  onFeedbackEntryTypeChange,
   onFeedbackTitleChange,
   onFeedbackMessageChange,
   onFeedbackCategoryChange,
   onFeedbackPageChange,
   onFeedbackSubmit,
   onToggleVote,
+  onFeedbackCommentDraftChange,
+  onFeedbackCommentSubmit,
 }) {
   const copy =
     language === 'zh'
       ? {
-          eyebrow: '公开反馈',
-          title: '查看大家的想法，也提交你的需求。',
-          body: '所有登录用户都能看到这块留言板。提新需求之前，可以先看看是否已经有人提过并给它点赞。',
-          total: '总反馈数',
-          open: '开放项',
-          formEyebrow: '提交反馈',
-          formTitle: '新增一条建议或问题',
-          listEyebrow: '公开列表',
-          listTitle: '当前反馈',
-          titleLabel: '标题',
-          messageLabel: '详细内容',
-          categoryLabel: '类型',
-          pageLabel: '页面',
-          titlePlaceholder: '例如：希望 builder 支持模块兼容性检查',
-          messagePlaceholder: '描述你希望增加的功能、遇到的问题，或者希望优化的地方。',
-          submit: '提交反馈',
-          submitting: '提交中...',
-          noItems: '还没有任何反馈。',
-          loading: '正在加载反馈...',
-          vote: '点赞',
-          unvote: '取消点赞',
-          by: '提交人',
-          status: '状态',
-          votes: '点赞数',
-          feature: '功能建议',
-          bug: '问题反馈',
-          improvement: '体验优化',
-          other: '其他',
-          dashboard: 'Dashboard',
-          builder: 'Builder',
-          saves: 'Your Saves',
-          user: 'User',
-        }
-      : {
-          eyebrow: 'Public Feedback',
-          title: 'See what others want, then add your own request.',
-          body: 'Every signed-in user can view this board. Check existing requests first, then upvote them instead of posting duplicates.',
-          total: 'Total feedback',
-          open: 'Open items',
-          formEyebrow: 'New Feedback',
-          formTitle: 'Post a request or report',
-          listEyebrow: 'Public Board',
-          listTitle: 'Current feedback',
-          titleLabel: 'Title',
-          messageLabel: 'Details',
-          categoryLabel: 'Category',
-          pageLabel: 'Page',
-          titlePlaceholder: 'Example: Add compatibility checks in the builder',
-          messagePlaceholder: 'Describe the feature you want, the issue you hit, or the workflow you want improved.',
-          submit: 'Submit Feedback',
-          submitting: 'Submitting...',
-          noItems: 'No feedback has been posted yet.',
-          loading: 'Loading feedback...',
-          vote: 'Upvote',
-          unvote: 'Remove vote',
-          by: 'Posted by',
-          status: 'Status',
-          votes: 'Votes',
-          feature: 'Feature request',
-          bug: 'Bug report',
-          improvement: 'UX improvement',
+          eyebrow: '?? Ideas',
+          title: '???????????????????',
+          body: '????????????? ideas ? feedback board????? idea?? bug????????????????',
+          total: '????',
+          open: '???',
+          formEyebrow: '????',
+          formTitle: '???? idea ? feedback',
+          listEyebrow: '????',
+          listTitle: '?? ideas ? feedback',
+          entryTypeLabel: '????',
+          titleLabel: '??',
+          messageLabel: '????',
+          categoryLabel: '????????',
+          pageLabel: '??',
+          titlePlaceholder: '???? builder ???????',
+          categoryPlaceholder: '???UI, export, workflow, idea, builder',
+          messagePlaceholder: '??????????????????????????',
+          submit: '??',
+          submitting: '???...',
+          noItems: '????????',
+          loading: '????...',
+          vote: '??',
+          unvote: '????',
+          status: '??',
+          idea: 'Idea',
+          bug: 'Bug',
+          question: 'Question',
           other: 'Other',
           dashboard: 'Dashboard',
           builder: 'Builder',
           saves: 'Your Saves',
           user: 'User',
+          comments: '??',
+          addComment: '????',
+          commentPlaceholder: '???????????...',
+          commenting: '???...',
+          postedAt: '????',
+        }
+      : {
+          eyebrow: 'Public Ideas',
+          title: 'Read existing ideas first, then share your own.',
+          body: 'This board is for public ideas and feedback from every signed-in user. Share ideas, report bugs, and comment on what others have posted.',
+          total: 'Total posts',
+          open: 'Open items',
+          formEyebrow: 'New Post',
+          formTitle: 'Share an idea or feedback',
+          listEyebrow: 'Public Board',
+          listTitle: 'Current ideas and feedback',
+          entryTypeLabel: 'Post type',
+          titleLabel: 'Title',
+          messageLabel: 'Details',
+          categoryLabel: 'Category (free text)',
+          pageLabel: 'Page',
+          titlePlaceholder: 'Example: Add compatibility checks in the builder',
+          categoryPlaceholder: 'Example: UI, export, workflow, idea, builder',
+          messagePlaceholder: 'Describe the feature you want, the issue you hit, or the workflow you want improved.',
+          submit: 'Publish',
+          submitting: 'Publishing...',
+          noItems: 'No posts have been published yet.',
+          loading: 'Loading posts...',
+          vote: 'Upvote',
+          unvote: 'Remove vote',
+          status: 'Status',
+          idea: 'Idea',
+          bug: 'Bug',
+          question: 'Question',
+          other: 'Other',
+          dashboard: 'Dashboard',
+          builder: 'Builder',
+          saves: 'Your Saves',
+          user: 'User',
+          comments: 'Comments',
+          addComment: 'Post comment',
+          commentPlaceholder: 'Leave your thoughts on this post...',
+          commenting: 'Posting...',
+          postedAt: 'Posted',
         }
 
   const openCount = feedbackItems.filter((item) => item.status === 'open').length
@@ -1409,26 +1426,39 @@ function FeedbackBoardScreen({
               />
             </label>
 
-            <div className="feedback-form-grid">
+            <div className="feedback-form-grid feedback-form-grid-ideas">
               <label className="auth-field">
-                <span>{copy.categoryLabel}</span>
-                <select value={feedbackCategory} onChange={(event) => onFeedbackCategoryChange(event.target.value)}>
-                  <option value="feature_request">{copy.feature}</option>
-                  <option value="bug_report">{copy.bug}</option>
-                  <option value="ux_improvement">{copy.improvement}</option>
+                <span>{copy.entryTypeLabel}</span>
+                <select value={feedbackEntryType} onChange={(event) => onFeedbackEntryTypeChange(event.target.value)}>
+                  <option value="idea">{copy.idea}</option>
+                  <option value="bug">{copy.bug}</option>
+                  <option value="question">{copy.question}</option>
                   <option value="other">{copy.other}</option>
                 </select>
               </label>
 
               <label className="auth-field">
-                <span>{copy.pageLabel}</span>
-                <select value={feedbackPage} onChange={(event) => onFeedbackPageChange(event.target.value)}>
-                  <option value="dashboard">{copy.dashboard}</option>
-                  <option value="builder">{copy.builder}</option>
-                  <option value="saves">{copy.saves}</option>
-                  <option value="user">{copy.user}</option>
-                </select>
+                <span>{copy.categoryLabel}</span>
+                <input
+                  type="text"
+                  value={feedbackCategory}
+                  onChange={(event) => onFeedbackCategoryChange(event.target.value)}
+                  placeholder={copy.categoryPlaceholder}
+                  maxLength={80}
+                />
               </label>
+
+              {feedbackEntryType !== 'idea' ? (
+                <label className="auth-field">
+                  <span>{copy.pageLabel}</span>
+                  <select value={feedbackPage} onChange={(event) => onFeedbackPageChange(event.target.value)}>
+                    <option value="dashboard">{copy.dashboard}</option>
+                    <option value="builder">{copy.builder}</option>
+                    <option value="saves">{copy.saves}</option>
+                    <option value="user">{copy.user}</option>
+                  </select>
+                </label>
+              ) : null}
             </div>
 
             {feedbackSubmitError ? <div className="auth-message auth-message-error">{feedbackSubmitError}</div> : null}
@@ -1460,12 +1490,46 @@ function FeedbackBoardScreen({
                     <strong>{item.title}</strong>
                     <span>{item.message}</span>
                     <div className="feedback-meta-row">
+                      <span>{item.entry_type || copy.idea}</span>
+                      <span>{item.category || '-'}</span>
                       <span>{copy.status}: {item.status}</span>
                     </div>
                     <div className="feedback-meta-row">
-                      <span>{item.category}</span>
-                      <span>{item.page}</span>
-                      <span>{new Date(item.created_at).toLocaleString()}</span>
+                      {item.page ? <span>{item.page}</span> : null}
+                      <span>{copy.postedAt}: {new Date(item.created_at).toLocaleString()}</span>
+                    </div>
+                    <div className="feedback-comments-block">
+                      <strong className="feedback-comments-title">{copy.comments} ({item.comments?.length ?? 0})</strong>
+                      <div className="feedback-comments-list">
+                        {item.comments?.length ? (
+                          item.comments.map((comment) => (
+                            <article key={comment.id} className="feedback-comment-item">
+                              <span>{comment.message}</span>
+                              <small>{new Date(comment.created_at).toLocaleString()}</small>
+                            </article>
+                          ))
+                        ) : (
+                          <span className="feedback-comment-empty">-</span>
+                        )}
+                      </div>
+                      <form className="feedback-comment-form" onSubmit={(event) => onFeedbackCommentSubmit(event, item.id)}>
+                        <textarea
+                          className="feedback-comment-textarea"
+                          value={feedbackCommentDrafts[item.id] ?? ''}
+                          onChange={(event) => onFeedbackCommentDraftChange(item.id, event.target.value)}
+                          placeholder={copy.commentPlaceholder}
+                          maxLength={240}
+                          rows={3}
+                        />
+                        <button
+                          type="submit"
+                          className="summary-link-button feedback-comment-submit"
+                          disabled={commentLoadingId === item.id || !user}
+                        >
+                          {commentLoadingId === item.id ? copy.commenting : copy.addComment}
+                        </button>
+                      </form>
+                      {feedbackCommentError ? <div className="auth-message auth-message-error">{feedbackCommentError}</div> : null}
                     </div>
                   </div>
                   <div className="saved-config-actions">
@@ -1482,7 +1546,8 @@ function FeedbackBoardScreen({
                           '...'
                         ) : (
                           <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M1.5 10.5C1.5 9.672 2.172 9 3 9h2.25c.828 0 1.5.672 1.5 1.5v9c0 .828-.672 1.5-1.5 1.5H3c-.828 0-1.5-.672-1.5-1.5v-9ZM9 21a1.5 1.5 0 0 1-1.5-1.5V10.88a1.5 1.5 0 0 1 .44-1.06l5.157-5.157A1.5 1.5 0 0 1 15.659 5.7L14.25 9h5.13c1.657 0 2.858 1.574 2.42 3.171l-1.435 5.25A3 3 0 0 1 17.47 19.5H9V21Z" />
+                            <path d="M7.5 21a.75.75 0 0 1-.75-.75V12a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 .75.75v8.25a.75.75 0 0 1-.75.75H7.5Z" />
+                            <path d="M12 21h5.156a2.25 2.25 0 0 0 2.163-1.627l1.18-4.127A2.25 2.25 0 0 0 18.337 12H15.75a.75.75 0 0 1-.75-.75V8.689c0-1.78-1.922-2.903-3.476-2.03a.75.75 0 0 0-.367.507l-.533 2.667a4.5 4.5 0 0 1-1.23 2.293l-.424.424A.75.75 0 0 0 8.75 13v6.75A1.5 1.5 0 0 0 10.25 21H12Z" />
                           </svg>
                         )}
                       </span>
@@ -1832,14 +1897,18 @@ function App() {
   const [feedbackItems, setFeedbackItems] = useState([])
   const [feedbackLoading, setFeedbackLoading] = useState(false)
   const [feedbackError, setFeedbackError] = useState('')
+  const [feedbackEntryType, setFeedbackEntryType] = useState('idea')
   const [feedbackTitle, setFeedbackTitle] = useState('')
   const [feedbackMessage, setFeedbackMessage] = useState('')
-  const [feedbackCategory, setFeedbackCategory] = useState('feature_request')
+  const [feedbackCategory, setFeedbackCategory] = useState('')
   const [feedbackPage, setFeedbackPage] = useState('builder')
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
   const [feedbackSubmitError, setFeedbackSubmitError] = useState('')
   const [feedbackNotice, setFeedbackNotice] = useState('')
   const [voteLoadingId, setVoteLoadingId] = useState(null)
+  const [commentLoadingId, setCommentLoadingId] = useState(null)
+  const [feedbackCommentDrafts, setFeedbackCommentDrafts] = useState({})
+  const [feedbackCommentError, setFeedbackCommentError] = useState('')
   const [currentScreen, setCurrentScreen] = useState('home')
   const [selectedChassisKey, setSelectedChassisKey] = useState('pxie-1095')
   const [searchText, setSearchText] = useState('')
@@ -2631,20 +2700,26 @@ function App() {
     setFeedbackLoading(true)
     setFeedbackError('')
 
-    const [{ data: items, error: itemsError }, { data: votes, error: votesError }] = await Promise.all([
+    const [
+      { data: items, error: itemsError },
+      { data: votes, error: votesError },
+      { data: comments, error: commentsError },
+    ] = await Promise.all([
       supabase.from('feedback_items').select('*').order('created_at', { ascending: false }),
       supabase.from('feedback_votes').select('feedback_id,user_id'),
+      supabase.from('feedback_comments').select('*').order('created_at', { ascending: true }),
     ])
 
-    if (itemsError || votesError) {
+    if (itemsError || votesError || commentsError) {
       setFeedbackItems([])
-      setFeedbackError(itemsError?.message || votesError?.message || 'Failed to load feedback')
+      setFeedbackError(itemsError?.message || votesError?.message || commentsError?.message || 'Failed to load feedback')
       setFeedbackLoading(false)
       return
     }
 
     const voteCountMap = new Map()
     const votedByUser = new Set()
+    const commentsByItem = new Map()
 
     ;(votes ?? []).forEach((vote) => {
       voteCountMap.set(vote.feedback_id, (voteCountMap.get(vote.feedback_id) ?? 0) + 1)
@@ -2653,11 +2728,18 @@ function App() {
       }
     })
 
+    ;(comments ?? []).forEach((comment) => {
+      const current = commentsByItem.get(comment.feedback_id) ?? []
+      current.push(comment)
+      commentsByItem.set(comment.feedback_id, current)
+    })
+
     setFeedbackItems(
       (items ?? []).map((item) => ({
         ...item,
         voteCount: voteCountMap.get(item.id) ?? 0,
         hasVoted: votedByUser.has(item.id),
+        comments: commentsByItem.get(item.id) ?? [],
       })),
     )
     setFeedbackLoading(false)
@@ -2759,8 +2841,12 @@ function App() {
     setFeedbackError('')
     setFeedbackNotice('')
     setFeedbackSubmitError('')
+    setFeedbackEntryType('idea')
     setFeedbackTitle('')
     setFeedbackMessage('')
+    setFeedbackCategory('')
+    setFeedbackCommentDrafts({})
+    setFeedbackCommentError('')
   }
 
   async function handlePasswordSubmit(event) {
@@ -2948,23 +3034,75 @@ function App() {
     const { error } = await supabase.from('feedback_items').insert({
       user_id: user.id,
       user_email: user.email,
+      entry_type: feedbackEntryType,
       title: trimmedTitle,
       message: trimmedMessage,
-      category: feedbackCategory,
-      page: feedbackPage,
+      category: feedbackCategory.trim(),
+      page: feedbackEntryType === 'idea' ? null : feedbackPage,
       status: 'open',
     })
 
     if (error) {
       setFeedbackSubmitError(error.message)
     } else {
+      setFeedbackEntryType('idea')
       setFeedbackTitle('')
       setFeedbackMessage('')
-      setFeedbackNotice(language === 'zh' ? '反馈已提交。' : 'Feedback submitted.')
+      setFeedbackCategory('')
+      setFeedbackNotice(language === 'zh' ? '??????' : 'Post published.')
       await refreshFeedbackItems()
     }
 
     setFeedbackSubmitting(false)
+  }
+
+  function handleFeedbackCommentDraftChange(feedbackId, value) {
+    setFeedbackCommentDrafts((current) => ({
+      ...current,
+      [feedbackId]: value,
+    }))
+  }
+
+  async function handleFeedbackCommentSubmit(event, feedbackId) {
+    event.preventDefault()
+
+    if (!supabase) {
+      setFeedbackCommentError(supabaseConfigError || 'Supabase is not configured.')
+      return
+    }
+
+    if (!user) {
+      return
+    }
+
+    const message = (feedbackCommentDrafts[feedbackId] ?? '').trim()
+
+    if (!message) {
+      setFeedbackCommentError(language === 'zh' ? '????????' : 'Please enter a comment.')
+      return
+    }
+
+    setCommentLoadingId(feedbackId)
+    setFeedbackCommentError('')
+
+    const { error } = await supabase.from('feedback_comments').insert({
+      feedback_id: feedbackId,
+      user_id: user.id,
+      user_email: user.email,
+      message,
+    })
+
+    if (error) {
+      setFeedbackCommentError(error.message)
+    } else {
+      setFeedbackCommentDrafts((current) => ({
+        ...current,
+        [feedbackId]: '',
+      }))
+      await refreshFeedbackItems()
+    }
+
+    setCommentLoadingId(null)
   }
 
   async function handleToggleFeedbackVote(item) {
@@ -3508,6 +3646,7 @@ function App() {
           feedbackLoading={feedbackLoading}
           feedbackError={feedbackError}
           feedbackSubmitting={feedbackSubmitting}
+          feedbackEntryType={feedbackEntryType}
           feedbackTitle={feedbackTitle}
           feedbackMessage={feedbackMessage}
           feedbackCategory={feedbackCategory}
@@ -3515,13 +3654,19 @@ function App() {
           feedbackNotice={feedbackNotice}
           feedbackSubmitError={feedbackSubmitError}
           voteLoadingId={voteLoadingId}
+          commentLoadingId={commentLoadingId}
+          feedbackCommentDrafts={feedbackCommentDrafts}
+          feedbackCommentError={feedbackCommentError}
           user={user}
+          onFeedbackEntryTypeChange={setFeedbackEntryType}
           onFeedbackTitleChange={setFeedbackTitle}
           onFeedbackMessageChange={setFeedbackMessage}
           onFeedbackCategoryChange={setFeedbackCategory}
           onFeedbackPageChange={setFeedbackPage}
           onFeedbackSubmit={handleFeedbackSubmit}
           onToggleVote={handleToggleFeedbackVote}
+          onFeedbackCommentDraftChange={handleFeedbackCommentDraftChange}
+          onFeedbackCommentSubmit={handleFeedbackCommentSubmit}
         />
       </main>
     )
